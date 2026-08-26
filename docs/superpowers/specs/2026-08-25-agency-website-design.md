@@ -23,6 +23,11 @@ uploads, VPS deployment) — no third-party CMS or scheduling SaaS.
   credentials are dropped in later, no code changes required.
 - **Deployment:** `DEPLOY.md` is a generic runbook, not tailored to a
   specific VPS/domain (none provisioned yet).
+- **Local dev database:** Docker isn't installed on the dev machine, but
+  a native Homebrew Postgres 18 is already running locally. Local dev
+  uses a dedicated database/user on that native instance instead of
+  `docker compose up`. `docker-compose.yml` is still written and used
+  for the VPS deploy target, where it's the intended Postgres setup.
 
 ## Tech stack
 
