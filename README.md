@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Agency Website + Admin CMS
 
-## Getting Started
+## Prerequisites
 
-First, run the development server:
+- Node.js 18.18+ (developed against Node 24)
+- pnpm, via Corepack: `corepack enable && corepack prepare pnpm@latest --activate`
+- A local PostgreSQL server running and reachable at `localhost:5432`
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Local setup
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. Install dependencies:
+   ```bash
+   pnpm install
+   ```
+2. Create a dedicated database role and database (needs `CREATEDB` so
+   Prisma can create its shadow database for `migrate dev`):
+   ```bash
+   DB_PASSWORD=$(openssl rand -base64 24 | tr -d '/+=\n')
+   psql postgres -c "CREATE ROLE agency_app WITH LOGIN CREATEDB PASSWORD '$DB_PASSWORD';"
+   psql postgres -c "CREATE DATABASE agency_dev OWNER agency_app;"
+   echo "DATABASE_URL=\"postgresql://agency_app:${DB_PASSWORD}@localhost:5432/agency_dev\"" > .env
+   ```
+3. Copy `.env.example` for reference and add the remaining value to `.env`:
+   ```bash
+   echo "AUTH_SECRET=\"$(openssl rand -base64 32)\"" >> .env
+   ```
+4. Run migrations:
+   ```bash
+   pnpm exec prisma migrate dev
+   ```
+   Use `pnpm exec`, not `pnpm dlx` — `dlx` always fetches a fresh copy from
+   npm's `latest` tag, which currently points at Prisma's newer
+   cloud-platform-oriented major version. This project is pinned to the
+   classic Prisma 6.x workflow (`prisma`/`@prisma/client` in
+   `package.json`), and `pnpm exec` runs that pinned local version.
+5. Start the dev server:
+   ```bash
+   pnpm dev
+   ```
+   Visit http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Admin user
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Creating/resetting the admin login is not available yet — it ships in
+Phase 1 as `pnpm seed:admin`. This section will be updated then.
 
-## Learn More
+## Notes
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Local dev uses a native Postgres install, not Docker. `docker-compose.yml`
+  (added later) is for the VPS deployment target only.
+- Prisma is pinned to the 6.x line, not `latest`. Prisma 7+ replaced the
+  classic `schema.prisma` + `migrate` workflow with a cloud-platform CLI
+  (managed Postgres, branches, contracts) that doesn't fit this project's
+  self-hosted requirement.
+- No test suite in v1 — TypeScript strict mode and Zod validation at input
+  boundaries are the correctness net.
