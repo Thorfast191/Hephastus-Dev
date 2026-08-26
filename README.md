@@ -33,7 +33,13 @@
    cloud-platform-oriented major version. This project is pinned to the
    classic Prisma 6.x workflow (`prisma`/`@prisma/client` in
    `package.json`), and `pnpm exec` runs that pinned local version.
-5. Start the dev server:
+5. Seed placeholder content (services, portfolio, testimonials, team, site
+   settings) and create your admin login:
+   ```bash
+   pnpm db:seed
+   pnpm seed:admin --email you@example.com --password your-password --name "Your Name"
+   ```
+6. Start the dev server:
    ```bash
    pnpm dev
    ```
@@ -41,8 +47,16 @@
 
 ## Admin user
 
-Creating/resetting the admin login is not available yet — it ships in
-Phase 1 as `pnpm seed:admin`. This section will be updated then.
+Create or reset the admin login:
+
+```bash
+pnpm seed:admin --email you@example.com --password your-password --name "Your Name"
+```
+
+Or set `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `ADMIN_NAME` environment
+variables instead of passing flags. Running this again for the same
+email updates that user's password and name rather than creating a
+second account — this is also how you reset a forgotten password.
 
 ## Notes
 
