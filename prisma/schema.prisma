@@ -20,3 +20,121 @@ model AdminUser {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  WON
+  LOST
+}
+
+enum MeetingStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  icon        String
+  order       Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  leads Lead[]
+}
+
+model PortfolioItem {
+  id           String   @id @default(cuid())
+  title        String
+  description  String
+  images       String[]
+  tags         String[]
+  externalLink String?
+  order        Int      @default(0)
+  featured     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Testimonial {
+  id         String   @id @default(cuid())
+  quote      String
+  authorName String
+  company    String?
+  photo      String?
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  photo     String?
+  bio       String
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SiteSettings {
+  id                  String   @id @default(cuid())
+  agencyName          String
+  tagline             String
+  contactEmail        String
+  contactPhone        String
+  socialLinks         Json
+  smtpSenderName      String
+  businessTimezone    String
+  slotDurationMinutes Int      @default(30)
+  minNoticeHours      Int      @default(24)
+  bookingWindowDays   Int      @default(30)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model Lead {
+  id        String     @id @default(cuid())
+  name      String
+  email     String
+  company   String?
+  message   String
+  serviceId String?
+  service   Service?   @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  status    LeadStatus @default(NEW)
+  notes     String     @default("")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Meeting {
+  id              String        @id @default(cuid())
+  name            String
+  email           String
+  topic           String
+  scheduledAt     DateTime      @unique
+  durationMinutes Int
+  status          MeetingStatus @default(CONFIRMED)
+  icsUid          String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model AvailabilityRule {
+  id        String  @id @default(cuid())
+  dayOfWeek Int
+  startTime String
+  endTime   String
+  active    Boolean @default(true)
+}
+
+model BlackoutDate {
+  id     String   @id @default(cuid())
+  date   DateTime @unique
+  reason String?
+}
