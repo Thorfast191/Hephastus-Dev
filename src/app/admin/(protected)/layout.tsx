@@ -33,6 +33,17 @@ export default async function AdminLayout({
           </form>
         </div>
       </header>
+      <nav className="flex gap-4 border-b bg-background px-6 py-2 text-sm">
+        <a href="/admin" className="text-muted-foreground hover:text-foreground">
+          Dashboard
+        </a>
+        <a
+          href="/admin/services"
+          className="text-muted-foreground hover:text-foreground"
+        >
+          Services
+        </a>
+      </nav>
       <main className="p-6">{children}</main>
     </div>
   );
