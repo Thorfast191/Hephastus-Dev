@@ -43,3 +43,6 @@ next-env.d.ts
 
 # Claude Code harness-local state (worktrees, scheduled task locks)
 /.claude/
+
+# user-uploaded files (local disk storage, not part of the build)
+/uploads/
