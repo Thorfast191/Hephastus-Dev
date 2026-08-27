@@ -67,6 +67,12 @@ export default async function AdminLayout({
         >
           Settings
         </a>
+        <a
+          href="/admin/leads"
+          className="text-muted-foreground hover:text-foreground"
+        >
+          Leads
+        </a>
       </nav>
       <main className="p-6">{children}</main>
     </div>
