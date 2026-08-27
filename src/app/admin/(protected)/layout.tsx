@@ -61,6 +61,12 @@ export default async function AdminLayout({
         >
           Team
         </a>
+        <a
+          href="/admin/settings"
+          className="text-muted-foreground hover:text-foreground"
+        >
+          Settings
+        </a>
       </nav>
       <main className="p-6">{children}</main>
     </div>
