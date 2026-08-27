@@ -43,6 +43,12 @@ export default async function AdminLayout({
         >
           Services
         </a>
+        <a
+          href="/admin/portfolio"
+          className="text-muted-foreground hover:text-foreground"
+        >
+          Portfolio
+        </a>
       </nav>
       <main className="p-6">{children}</main>
     </div>
