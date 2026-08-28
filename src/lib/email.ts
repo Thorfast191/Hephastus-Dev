@@ -18,6 +18,7 @@ export async function sendMail(options: {
   subject: string;
   text: string;
   fromName?: string;
+  attachments?: { filename: string; content: string; contentType?: string }[];
 }) {
   const transport = getTransport();
 
@@ -36,5 +37,6 @@ export async function sendMail(options: {
     to: options.to,
     subject: options.subject,
     text: options.text,
+    attachments: options.attachments,
   });
 }
