@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { ContactForm } from "@/components/public/contact-form";
+import { Scheduler } from "@/components/public/scheduler";
 
 export default async function Home() {
   const services = await prisma.service.findMany({
@@ -9,9 +10,15 @@ export default async function Home() {
   });
 
   return (
-    <div className="mx-auto max-w-md p-8">
-      <h1 className="mb-6 text-2xl font-semibold">Contact us</h1>
-      <ContactForm services={services} />
+    <div className="mx-auto max-w-md space-y-12 p-8">
+      <div>
+        <h1 className="mb-6 text-2xl font-semibold">Contact us</h1>
+        <ContactForm services={services} />
+      </div>
+      <div>
+        <h1 className="mb-6 text-2xl font-semibold">Book a meeting</h1>
+        <Scheduler />
+      </div>
     </div>
   );
 }
