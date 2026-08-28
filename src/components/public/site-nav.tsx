@@ -1,3 +1,5 @@
+import { ThemeToggle } from "./theme-toggle";
+
 const LINKS = [
   { href: "#services", label: "Services" },
   { href: "#portfolio", label: "Portfolio" },
@@ -12,7 +14,7 @@ export function SiteNav({ agencyName }: { agencyName: string }) {
         <a href="#top" className="font-heading text-lg font-semibold">
           {agencyName}
         </a>
-        <div className="flex flex-wrap gap-6 text-sm">
+        <div className="flex flex-wrap items-center gap-6 text-sm">
           {LINKS.map((link) => (
             <a
               key={link.href}
@@ -22,6 +24,7 @@ export function SiteNav({ agencyName }: { agencyName: string }) {
               {link.label}
             </a>
           ))}
+          <ThemeToggle />
         </div>
       </nav>
     </header>
