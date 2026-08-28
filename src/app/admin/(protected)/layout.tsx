@@ -79,6 +79,12 @@ export default async function AdminLayout({
         >
           Availability
         </a>
+        <a
+          href="/admin/meetings"
+          className="text-muted-foreground hover:text-foreground"
+        >
+          Meetings
+        </a>
       </nav>
       <main className="p-6">{children}</main>
     </div>
