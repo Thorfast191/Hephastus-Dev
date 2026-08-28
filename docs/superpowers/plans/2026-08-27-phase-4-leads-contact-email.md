@@ -663,7 +663,10 @@ export function ContactForm({
         <Label>Service interested in</Label>
         <Select value={serviceId} onValueChange={(v) => v && setServiceId(v)}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select a service (optional)" />
+            <SelectValue>
+              {services.find((s) => s.id === serviceId)?.title ??
+                "Select a service (optional)"}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {services.map((service) => (
