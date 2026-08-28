@@ -19,6 +19,7 @@
 - Local `/uploads/<file>` image paths (from `ImageUpload`/`MultiImageUpload`, stored on `PortfolioItem.images`, `Testimonial.photo`, `TeamMember.photo`) are rendered via `next/image` with `fill` and no `sizes` prop, matching the existing pattern already used in `src/components/admin/image-upload.tsx` — no `next.config.ts` changes needed since these are same-origin relative paths, not external domains.
 - Icon rendering for `Service.icon` reuses the exact lookup pattern from `src/components/admin/icon-picker.tsx`: `Icons[value as keyof typeof Icons] as Icons.LucideIcon`, with a fallback icon if the stored string somehow isn't a valid export (defensive, since the value originates from a fixed admin picker but the DB doesn't enforce the enum).
 - `pnpm build` (production build) and `pnpm dev` must not run concurrently against the same `.next` directory — doing so mid-session corrupted the dev server's build manifest (`ENOENT` on `_buildManifest.js.tmp.*`) and required killing the dev process, deleting `.next`, and restarting. Going forward in this project: stop the dev server before `pnpm build`, then `rm -rf .next` and restart `pnpm dev` before any browser verification step.
+- The installed `lucide-react` (1.34.0) has **no brand/logo icons** — `Github`, `Twitter`, `Linkedin`, etc. simply don't exist as exports (confirmed by enumerating `Object.keys(require("lucide-react"))`: 6098 icons, zero brand names). This surfaced as a `pnpm build` type error while executing this plan's Task 1 and was fixed by using plain text links in the footer instead of brand icons — do not reach for lucide-react brand icons anywhere in this project; either use a generic icon (`Link`, `ExternalLink`) or plain text.
 
 ---
 
@@ -106,7 +107,6 @@ export function Hero({
 `src/components/public/footer.tsx`:
 
 ```tsx
-import { Github, Linkedin, Twitter } from "lucide-react";
 import type { SiteSettings } from "@prisma/client";
 
 export function Footer({ settings }: { settings: SiteSettings }) {
@@ -133,18 +133,33 @@ export function Footer({ settings }: { settings: SiteSettings }) {
         </div>
         <div className="flex items-center gap-4">
           {socialLinks.twitter && (
-            <a href={socialLinks.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-              <Twitter className="h-4 w-4 hover:text-foreground" />
+            <a
+              href={socialLinks.twitter}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground"
+            >
+              Twitter
             </a>
           )}
           {socialLinks.linkedin && (
-            <a href={socialLinks.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-              <Linkedin className="h-4 w-4 hover:text-foreground" />
+            <a
+              href={socialLinks.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground"
+            >
+              LinkedIn
             </a>
           )}
           {socialLinks.github && (
-            <a href={socialLinks.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-              <Github className="h-4 w-4 hover:text-foreground" />
+            <a
+              href={socialLinks.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground"
+            >
+              GitHub
             </a>
           )}
         </div>
