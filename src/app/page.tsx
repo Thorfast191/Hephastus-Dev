@@ -1,24 +1,57 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
-import { ContactForm } from "@/components/public/contact-form";
-import { Scheduler } from "@/components/public/scheduler";
+import { SiteNav } from "@/components/public/site-nav";
+import { Hero } from "@/components/public/hero";
+import { ServicesSection } from "@/components/public/services-section";
+import { PortfolioSection } from "@/components/public/portfolio-section";
+import { ProcessSection } from "@/components/public/process-section";
+import { TestimonialsSection } from "@/components/public/testimonials-section";
+import { TeamSection } from "@/components/public/team-section";
+import { ContactSection } from "@/components/public/contact-section";
+import { Footer } from "@/components/public/footer";
+
+export const revalidate = 60;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await prisma.siteSettings.findFirst();
+  return {
+    title: settings?.agencyName ?? "Agency",
+    description: settings?.tagline ?? undefined,
+  };
+}
 
 export default async function Home() {
-  const services = await prisma.service.findMany({
-    where: { active: true },
-    orderBy: { order: "asc" },
-    select: { id: true, title: true },
-  });
+  const [settings, services, portfolioItems, testimonials, teamMembers] = await Promise.all([
+    prisma.siteSettings.findFirst(),
+    prisma.service.findMany({ where: { active: true }, orderBy: { order: "asc" } }),
+    prisma.portfolioItem.findMany({ orderBy: { order: "asc" } }),
+    prisma.testimonial.findMany({ orderBy: { order: "asc" } }),
+    prisma.teamMember.findMany({ where: { active: true }, orderBy: { order: "asc" } }),
+  ]);
+
+  if (!settings) {
+    return (
+      <div className="mx-auto max-w-md p-8">
+        <p className="text-muted-foreground">
+          Site settings have not been configured yet. Sign in to /admin/settings to get started.
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="mx-auto max-w-md space-y-12 p-8">
-      <div>
-        <h1 className="mb-6 text-2xl font-semibold">Contact us</h1>
-        <ContactForm services={services} />
-      </div>
-      <div>
-        <h1 className="mb-6 text-2xl font-semibold">Book a meeting</h1>
-        <Scheduler />
-      </div>
-    </div>
+    <>
+      <SiteNav agencyName={settings.agencyName} />
+      <main>
+        <Hero agencyName={settings.agencyName} tagline={settings.tagline} />
+        <ServicesSection services={services} />
+        <PortfolioSection items={portfolioItems} />
+        <ProcessSection />
+        <TestimonialsSection testimonials={testimonials} />
+        <TeamSection members={teamMembers} />
+        <ContactSection services={services.map((s) => ({ id: s.id, title: s.title }))} />
+      </main>
+      <Footer settings={settings} />
+    </>
   );
 }
