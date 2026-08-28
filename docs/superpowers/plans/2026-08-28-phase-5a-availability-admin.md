@@ -267,7 +267,7 @@ Create `src/app/admin/(protected)/availability/rule-table.tsx`:
 "use client";
 
 import { Pencil, Trash2 } from "lucide-react";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
   Table,
