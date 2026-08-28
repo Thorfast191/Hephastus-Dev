@@ -7,7 +7,7 @@ export function TeamSection({ members }: { members: TeamMember[] }) {
 
   return (
     <section id="team" className="mx-auto max-w-5xl px-6 py-16">
-      <h2 className="text-3xl font-semibold">Team</h2>
+      <h2 className="font-heading text-3xl font-semibold">Team</h2>
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {members.map((member) => (
           <Card key={member.id}>
@@ -17,7 +17,7 @@ export function TeamSection({ members }: { members: TeamMember[] }) {
               </div>
             )}
             <CardHeader>
-              <CardTitle>{member.name}</CardTitle>
+              <CardTitle className="font-heading">{member.name}</CardTitle>
               <p className="text-sm text-muted-foreground">{member.role}</p>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground">{member.bio}</CardContent>

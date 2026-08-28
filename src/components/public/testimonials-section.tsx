@@ -8,7 +8,7 @@ export function TestimonialsSection({ testimonials }: { testimonials: Testimonia
   return (
     <section id="testimonials" className="bg-muted/30 py-16">
       <div className="mx-auto max-w-5xl px-6">
-        <h2 className="text-3xl font-semibold">What clients say</h2>
+        <h2 className="font-heading text-3xl font-semibold">What clients say</h2>
         <div className="mt-8 grid gap-6 sm:grid-cols-2">
           {testimonials.map((testimonial) => (
             <Card key={testimonial.id}>

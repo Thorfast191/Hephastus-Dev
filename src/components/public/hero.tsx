@@ -9,7 +9,7 @@ export function Hero({
 }) {
   return (
     <section id="top" className="mx-auto max-w-4xl px-6 py-24 text-center">
-      <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">{agencyName}</h1>
+      <h1 className="font-heading text-4xl font-bold tracking-tight sm:text-5xl">{agencyName}</h1>
       <p className="mt-4 text-lg text-muted-foreground">{tagline}</p>
       <div className="mt-8 flex flex-wrap justify-center gap-4">
         <a href="#portfolio" className={buttonVariants({ size: "lg" })}>

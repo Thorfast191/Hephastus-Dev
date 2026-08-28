@@ -10,7 +10,7 @@ export function PortfolioSection({ items }: { items: PortfolioItem[] }) {
   return (
     <section id="portfolio" className="bg-muted/30 py-16">
       <div className="mx-auto max-w-5xl px-6">
-        <h2 className="text-3xl font-semibold">Portfolio</h2>
+        <h2 className="font-heading text-3xl font-semibold">Portfolio</h2>
         <div className="mt-8 grid gap-6 sm:grid-cols-2">
           {items.map((item) => (
             <Card key={item.id}>
@@ -20,7 +20,7 @@ export function PortfolioSection({ items }: { items: PortfolioItem[] }) {
                 </div>
               )}
               <CardHeader>
-                <CardTitle>{item.title}</CardTitle>
+                <CardTitle className="font-heading">{item.title}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-muted-foreground">
                 <p>{item.description}</p>
