@@ -3,8 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { sendMail } from "@/lib/email";
+import { assertAdmin } from "@/lib/admin-guard";
 
 export async function cancelMeeting(id: string) {
+  await assertAdmin();
   const meeting = await prisma.meeting.update({
     where: { id },
     data: { status: "CANCELLED" },
@@ -24,6 +26,13 @@ export async function cancelMeeting(id: string) {
     console.error("[meetings] failed to send cancellation email", error);
   }
 
+  revalidatePath("/admin/meetings");
+  revalidatePath("/admin");
+}
+
+export async function deleteMeeting(id: string) {
+  await assertAdmin();
+  await prisma.meeting.delete({ where: { id } });
   revalidatePath("/admin/meetings");
   revalidatePath("/admin");
 }

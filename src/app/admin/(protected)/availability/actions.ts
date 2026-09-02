@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { assertAdmin } from "@/lib/admin-guard";
 
 const TIME_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -26,23 +27,27 @@ function readRuleForm(formData: FormData) {
 }
 
 export async function createRule(formData: FormData) {
+  await assertAdmin();
   const parsed = readRuleForm(formData);
   await prisma.availabilityRule.create({ data: parsed });
   revalidatePath("/admin/availability");
 }
 
 export async function updateRule(id: string, formData: FormData) {
+  await assertAdmin();
   const parsed = readRuleForm(formData);
   await prisma.availabilityRule.update({ where: { id }, data: parsed });
   revalidatePath("/admin/availability");
 }
 
 export async function deleteRule(id: string) {
+  await assertAdmin();
   await prisma.availabilityRule.delete({ where: { id } });
   revalidatePath("/admin/availability");
 }
 
 export async function toggleRuleActive(id: string, active: boolean) {
+  await assertAdmin();
   await prisma.availabilityRule.update({ where: { id }, data: { active } });
   revalidatePath("/admin/availability");
 }
@@ -55,18 +60,34 @@ const blackoutSchema = z.object({
     .transform((v) => (v === "" ? null : v)),
 });
 
-export async function createBlackout(formData: FormData) {
-  const parsed = blackoutSchema.parse({
+function readBlackoutForm(formData: FormData) {
+  return blackoutSchema.parse({
     date: formData.get("date"),
     reason: formData.get("reason"),
   });
+}
+
+export async function createBlackout(formData: FormData) {
+  await assertAdmin();
+  const parsed = readBlackoutForm(formData);
   await prisma.blackoutDate.create({
     data: { date: new Date(parsed.date), reason: parsed.reason },
   });
   revalidatePath("/admin/availability");
 }
 
+export async function updateBlackout(id: string, formData: FormData) {
+  await assertAdmin();
+  const parsed = readBlackoutForm(formData);
+  await prisma.blackoutDate.update({
+    where: { id },
+    data: { date: new Date(parsed.date), reason: parsed.reason },
+  });
+  revalidatePath("/admin/availability");
+}
+
 export async function deleteBlackout(id: string) {
+  await assertAdmin();
   await prisma.blackoutDate.delete({ where: { id } });
   revalidatePath("/admin/availability");
 }

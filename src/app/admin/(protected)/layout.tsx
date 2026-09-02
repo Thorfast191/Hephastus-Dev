@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth, signOut } from "@/auth";
 import { Button } from "@/components/ui/button";
+
+export const metadata: Metadata = {
+  title: { default: "Admin", template: "%s · Admin" },
+};
 
 export default async function AdminLayout({
   children,

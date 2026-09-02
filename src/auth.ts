@@ -4,6 +4,10 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // Self-hosted behind a reverse proxy (see deploy/nginx.conf): trust the
+  // forwarded host instead of requiring an AUTH_URL env var. Without this,
+  // Auth.js throws `UntrustedHost` under `next start` and admin login breaks.
+  trustHost: true,
   session: { strategy: "jwt" },
   providers: [
     Credentials({

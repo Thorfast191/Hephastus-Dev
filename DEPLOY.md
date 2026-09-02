@@ -35,7 +35,13 @@ cp .env.example .env
   `docker-compose.yml` to initialize the Postgres container. Generate a
   real password (`openssl rand -base64 24 | tr -d '/+=\n'`) — don't ship
   the `changeme` placeholder.
+- `POSTGRES_PORT` — host port the Postgres container binds (defaults to
+  `5432`). Only change it if `5432` is already taken on the box; keep it
+  in sync with the port in `DATABASE_URL`.
 - `AUTH_SECRET` — generate with `openssl rand -base64 32`.
+- `AUTH_URL` — leave unset. Auth.js is configured with `trustHost: true`
+  for this reverse-proxy setup; only set `AUTH_URL` to the public origin
+  if you still hit `UntrustedHost` errors on login.
 - `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` —
   your SMTP provider's credentials. Leaving `SMTP_HOST` empty is valid;
   the app logs emails to the console instead of sending them, which is

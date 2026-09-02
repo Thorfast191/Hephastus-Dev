@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { assertAdmin } from "@/lib/admin-guard";
 
 const testimonialSchema = z.object({
   quote: z.string().min(1, "Quote is required"),
@@ -27,6 +28,7 @@ function readForm(formData: FormData) {
 }
 
 export async function createTestimonial(formData: FormData) {
+  await assertAdmin();
   const parsed = readForm(formData);
   const maxOrder = await prisma.testimonial.aggregate({ _max: { order: true } });
 
@@ -38,17 +40,20 @@ export async function createTestimonial(formData: FormData) {
 }
 
 export async function updateTestimonial(id: string, formData: FormData) {
+  await assertAdmin();
   const parsed = readForm(formData);
   await prisma.testimonial.update({ where: { id }, data: parsed });
   revalidatePath("/admin/testimonials");
 }
 
 export async function deleteTestimonial(id: string) {
+  await assertAdmin();
   await prisma.testimonial.delete({ where: { id } });
   revalidatePath("/admin/testimonials");
 }
 
 export async function moveTestimonialUp(id: string) {
+  await assertAdmin();
   const testimonial = await prisma.testimonial.findUniqueOrThrow({ where: { id } });
   const prev = await prisma.testimonial.findFirst({
     where: { order: { lt: testimonial.order } },
@@ -70,6 +75,7 @@ export async function moveTestimonialUp(id: string) {
 }
 
 export async function moveTestimonialDown(id: string) {
+  await assertAdmin();
   const testimonial = await prisma.testimonial.findUniqueOrThrow({ where: { id } });
   const next = await prisma.testimonial.findFirst({
     where: { order: { gt: testimonial.order } },

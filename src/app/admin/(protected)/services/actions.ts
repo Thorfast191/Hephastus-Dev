@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { assertAdmin } from "@/lib/admin-guard";
 
 const serviceSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -11,6 +12,7 @@ const serviceSchema = z.object({
 });
 
 export async function createService(formData: FormData) {
+  await assertAdmin();
   const parsed = serviceSchema.parse({
     title: formData.get("title"),
     description: formData.get("description"),
@@ -30,6 +32,7 @@ export async function createService(formData: FormData) {
 }
 
 export async function updateService(id: string, formData: FormData) {
+  await assertAdmin();
   const parsed = serviceSchema.parse({
     title: formData.get("title"),
     description: formData.get("description"),
@@ -41,16 +44,19 @@ export async function updateService(id: string, formData: FormData) {
 }
 
 export async function deleteService(id: string) {
+  await assertAdmin();
   await prisma.service.delete({ where: { id } });
   revalidatePath("/admin/services");
 }
 
 export async function toggleServiceActive(id: string, active: boolean) {
+  await assertAdmin();
   await prisma.service.update({ where: { id }, data: { active } });
   revalidatePath("/admin/services");
 }
 
 export async function moveServiceUp(id: string) {
+  await assertAdmin();
   const service = await prisma.service.findUniqueOrThrow({ where: { id } });
   const prev = await prisma.service.findFirst({
     where: { order: { lt: service.order } },
@@ -72,6 +78,7 @@ export async function moveServiceUp(id: string) {
 }
 
 export async function moveServiceDown(id: string) {
+  await assertAdmin();
   const service = await prisma.service.findUniqueOrThrow({ where: { id } });
   const next = await prisma.service.findFirst({
     where: { order: { gt: service.order } },

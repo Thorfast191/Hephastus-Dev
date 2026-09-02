@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { assertAdmin } from "@/lib/admin-guard";
 
 const portfolioSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -31,6 +32,7 @@ function readForm(formData: FormData) {
 }
 
 export async function createPortfolioItem(formData: FormData) {
+  await assertAdmin();
   const parsed = readForm(formData);
   const maxOrder = await prisma.portfolioItem.aggregate({ _max: { order: true } });
 
@@ -42,22 +44,26 @@ export async function createPortfolioItem(formData: FormData) {
 }
 
 export async function updatePortfolioItem(id: string, formData: FormData) {
+  await assertAdmin();
   const parsed = readForm(formData);
   await prisma.portfolioItem.update({ where: { id }, data: parsed });
   revalidatePath("/admin/portfolio");
 }
 
 export async function deletePortfolioItem(id: string) {
+  await assertAdmin();
   await prisma.portfolioItem.delete({ where: { id } });
   revalidatePath("/admin/portfolio");
 }
 
 export async function toggleFeatured(id: string, featured: boolean) {
+  await assertAdmin();
   await prisma.portfolioItem.update({ where: { id }, data: { featured } });
   revalidatePath("/admin/portfolio");
 }
 
 export async function movePortfolioItemUp(id: string) {
+  await assertAdmin();
   const item = await prisma.portfolioItem.findUniqueOrThrow({ where: { id } });
   const prev = await prisma.portfolioItem.findFirst({
     where: { order: { lt: item.order } },
@@ -73,6 +79,7 @@ export async function movePortfolioItemUp(id: string) {
 }
 
 export async function movePortfolioItemDown(id: string) {
+  await assertAdmin();
   const item = await prisma.portfolioItem.findUniqueOrThrow({ where: { id } });
   const next = await prisma.portfolioItem.findFirst({
     where: { order: { gt: item.order } },

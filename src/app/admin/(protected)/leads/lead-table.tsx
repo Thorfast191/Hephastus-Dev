@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -17,7 +19,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { LeadDetailDialog } from "./lead-detail-dialog";
+import { deleteLead } from "./actions";
 import type { Lead, Service } from "@prisma/client";
 
 type LeadWithService = Lead & { service: Service | null };
@@ -66,11 +80,34 @@ export function LeadTable({ leads }: { leads: LeadWithService[] }) {
               <TableCell>
                 <Badge variant="secondary">{lead.status}</Badge>
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="flex justify-end gap-2">
                 <LeadDetailDialog
                   key={`${lead.id}-${lead.updatedAt.toISOString()}`}
                   lead={lead}
                 />
+                <AlertDialog>
+                  <AlertDialogTrigger
+                    className={buttonVariants({ variant: "outline", size: "icon" })}
+                    aria-label="Delete lead"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete this lead?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This permanently removes {lead.name}&apos;s enquiry
+                        ({lead.email}). This can&apos;t be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => deleteLead(lead.id)}>
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </TableCell>
             </TableRow>
           ))}

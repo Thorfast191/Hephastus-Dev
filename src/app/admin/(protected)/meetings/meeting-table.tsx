@@ -29,7 +29,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { cancelMeeting } from "./actions";
+import { Trash2 } from "lucide-react";
+import { cancelMeeting, deleteMeeting } from "./actions";
 import type { Meeting } from "@prisma/client";
 
 const FILTERS = ["ALL", "CONFIRMED", "CANCELLED"] as const;
@@ -89,7 +90,7 @@ export function MeetingTable({
                   {meeting.status}
                 </Badge>
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="flex justify-end gap-2">
                 {meeting.status === "CONFIRMED" && (
                   <AlertDialog>
                     <AlertDialogTrigger className={buttonVariants({ variant: "outline", size: "sm" })}>
@@ -112,6 +113,30 @@ export function MeetingTable({
                     </AlertDialogContent>
                   </AlertDialog>
                 )}
+                <AlertDialog>
+                  <AlertDialogTrigger
+                    className={buttonVariants({ variant: "outline", size: "icon" })}
+                    aria-label="Delete meeting"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete this meeting?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This permanently removes the record of {meeting.name}&apos;s
+                        booking ({formatter.format(meeting.scheduledAt)}). No email is
+                        sent. This can&apos;t be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => deleteMeeting(meeting.id)}>
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </TableCell>
             </TableRow>
           ))}

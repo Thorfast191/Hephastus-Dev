@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { assertAdmin } from "@/lib/admin-guard";
 
 const settingsSchema = z.object({
   agencyName: z.string().min(1),
@@ -20,6 +21,7 @@ const settingsSchema = z.object({
 });
 
 export async function updateSettings(formData: FormData) {
+  await assertAdmin();
   const parsed = settingsSchema.parse({
     agencyName: formData.get("agencyName"),
     tagline: formData.get("tagline"),

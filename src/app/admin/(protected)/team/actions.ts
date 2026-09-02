@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { assertAdmin } from "@/lib/admin-guard";
 
 const teamMemberSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -24,6 +25,7 @@ function readForm(formData: FormData) {
 }
 
 export async function createTeamMember(formData: FormData) {
+  await assertAdmin();
   const parsed = readForm(formData);
   const maxOrder = await prisma.teamMember.aggregate({ _max: { order: true } });
 
@@ -35,22 +37,26 @@ export async function createTeamMember(formData: FormData) {
 }
 
 export async function updateTeamMember(id: string, formData: FormData) {
+  await assertAdmin();
   const parsed = readForm(formData);
   await prisma.teamMember.update({ where: { id }, data: parsed });
   revalidatePath("/admin/team");
 }
 
 export async function deleteTeamMember(id: string) {
+  await assertAdmin();
   await prisma.teamMember.delete({ where: { id } });
   revalidatePath("/admin/team");
 }
 
 export async function toggleTeamMemberActive(id: string, active: boolean) {
+  await assertAdmin();
   await prisma.teamMember.update({ where: { id }, data: { active } });
   revalidatePath("/admin/team");
 }
 
 export async function moveTeamMemberUp(id: string) {
+  await assertAdmin();
   const member = await prisma.teamMember.findUniqueOrThrow({ where: { id } });
   const prev = await prisma.teamMember.findFirst({
     where: { order: { lt: member.order } },
@@ -66,6 +72,7 @@ export async function moveTeamMemberUp(id: string) {
 }
 
 export async function moveTeamMemberDown(id: string) {
+  await assertAdmin();
   const member = await prisma.teamMember.findUniqueOrThrow({ where: { id } });
   const next = await prisma.teamMember.findFirst({
     where: { order: { gt: member.order } },

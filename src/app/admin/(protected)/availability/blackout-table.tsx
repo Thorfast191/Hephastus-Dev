@@ -21,6 +21,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { BlackoutFormDialog } from "./blackout-form-dialog";
 import { deleteBlackout } from "./actions";
 import type { BlackoutDate } from "@prisma/client";
 
@@ -39,7 +40,11 @@ export function BlackoutTable({ blackouts }: { blackouts: BlackoutDate[] }) {
           <TableRow key={blackout.id}>
             <TableCell>{blackout.date.toISOString().slice(0, 10)}</TableCell>
             <TableCell>{blackout.reason ?? "—"}</TableCell>
-            <TableCell className="text-right">
+            <TableCell className="flex justify-end gap-2">
+              <BlackoutFormDialog
+                key={`${blackout.id}-${blackout.date.toISOString()}-${blackout.reason ?? ""}`}
+                blackout={blackout}
+              />
               <AlertDialog>
                 <AlertDialogTrigger
                   className={buttonVariants({ variant: "outline", size: "icon" })}
