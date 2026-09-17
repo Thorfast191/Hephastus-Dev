@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { ArrowDown, ArrowUp, Pencil, Trash2 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -23,97 +22,90 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { TestimonialFormDialog } from "./testimonial-form-dialog";
-import {
-  deleteTestimonial,
-  moveTestimonialDown,
-  moveTestimonialUp,
-  toggleTestimonialActive,
-} from "./actions";
-import type { Testimonial } from "@prisma/client";
+import { FaqFormDialog } from "./faq-form-dialog";
+import { deleteFaq, moveFaqDown, moveFaqUp, toggleFaqActive } from "./actions";
+import type { Faq } from "@prisma/client";
 
-export function TestimonialTable({ testimonials }: { testimonials: Testimonial[] }) {
+export function FaqTable({ faqs }: { faqs: Faq[] }) {
+  if (faqs.length === 0) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        No questions yet. Add one to make the FAQ section appear on the public site.
+      </p>
+    );
+  }
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead>Order</TableHead>
-          <TableHead>Photo</TableHead>
-          <TableHead>Author</TableHead>
-          <TableHead>Quote</TableHead>
+          <TableHead>Question</TableHead>
+          <TableHead>Answer</TableHead>
           <TableHead>Active</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {testimonials.map((testimonial, index) => (
-          <TableRow key={testimonial.id}>
+        {faqs.map((faq, index) => (
+          <TableRow key={faq.id}>
             <TableCell className="flex gap-1">
               <Button
                 variant="ghost"
                 size="icon"
+                aria-label="Move up"
                 disabled={index === 0}
-                onClick={() => moveTestimonialUp(testimonial.id)}
+                onClick={() => moveFaqUp(faq.id)}
               >
                 <ArrowUp className="h-4 w-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                disabled={index === testimonials.length - 1}
-                onClick={() => moveTestimonialDown(testimonial.id)}
+                aria-label="Move down"
+                disabled={index === faqs.length - 1}
+                onClick={() => moveFaqDown(faq.id)}
               >
                 <ArrowDown className="h-4 w-4" />
               </Button>
             </TableCell>
-            <TableCell>
-              {testimonial.photo && (
-                <div className="relative h-10 w-10 overflow-hidden rounded-full border">
-                  <Image src={testimonial.photo} alt="" fill className="object-cover" />
-                </div>
-              )}
+            <TableCell className="max-w-xs font-medium">{faq.question}</TableCell>
+            <TableCell className="max-w-md truncate text-muted-foreground">
+              {faq.answer}
             </TableCell>
-            <TableCell>
-              {testimonial.authorName}
-              {testimonial.company && (
-                <span className="text-muted-foreground"> — {testimonial.company}</span>
-              )}
-            </TableCell>
-            <TableCell className="max-w-xs truncate">{testimonial.quote}</TableCell>
             <TableCell>
               <Switch
-                checked={testimonial.active}
-                onCheckedChange={(checked) =>
-                  toggleTestimonialActive(testimonial.id, checked)
-                }
+                checked={faq.active}
+                onCheckedChange={(checked) => toggleFaqActive(faq.id, checked)}
               />
             </TableCell>
             <TableCell className="flex justify-end gap-2">
-              <TestimonialFormDialog
-                key={`${testimonial.id}-${testimonial.updatedAt.toISOString()}`}
-                testimonial={testimonial}
+              <FaqFormDialog
+                key={`${faq.id}-${faq.updatedAt.toISOString()}`}
+                faq={faq}
                 variant="outline"
                 size="icon"
               >
                 <Pencil className="h-4 w-4" />
-              </TestimonialFormDialog>
+              </FaqFormDialog>
               <AlertDialog>
                 <AlertDialogTrigger
                   className={buttonVariants({ variant: "outline", size: "icon" })}
+                  aria-label="Delete question"
                 >
                   <Trash2 className="h-4 w-4" />
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Delete this testimonial?</AlertDialogTitle>
+                    <AlertDialogTitle>Delete this question?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This removes the quote from &quot;{testimonial.authorName}&quot;
-                      permanently.
+                      This permanently removes &quot;{faq.question}&quot; from the FAQ
+                      section. This can&apos;t be undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => deleteTestimonial(testimonial.id)}>
+                    <AlertDialogAction onClick={() => deleteFaq(faq.id)}>
                       Delete
                     </AlertDialogAction>
                   </AlertDialogFooter>

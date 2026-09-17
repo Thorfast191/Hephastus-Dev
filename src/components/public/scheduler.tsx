@@ -1,12 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { CalendarCheck } from "lucide-react";
+import { Magnetic } from "@/components/motion/magnetic";
 
 type Status = "loading" | "ready" | "booking" | "booked" | "error";
+
+/** Shared look for the day and time chips. */
+function chipClass(active: boolean) {
+  return `rounded-full border px-5 py-2.5 text-sm transition-all duration-500 ease-site ${
+    active
+      ? "border-site-accent bg-[rgb(99_102_241/0.18)] text-site-text"
+      : "border-site-border text-site-muted hover:border-site-border-strong hover:text-site-text"
+  }`;
+}
 
 export function Scheduler() {
   const [slots, setSlots] = useState<Date[]>([]);
@@ -34,7 +41,12 @@ export function Scheduler() {
   }, []);
 
   const dayFormatter = useMemo(
-    () => new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric" }),
+    () =>
+      new Intl.DateTimeFormat(undefined, {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      }),
     []
   );
   const timeFormatter = useMemo(
@@ -89,75 +101,124 @@ export function Scheduler() {
 
   if (status === "booked") {
     return (
-      <p className="text-muted-foreground">
-        Meeting confirmed — check your email for the calendar invite.
-      </p>
+      <div className="flex flex-col items-center gap-4 py-16 text-center">
+        <CalendarCheck className="h-12 w-12 text-site-accent" />
+        <p className="site-h3 text-2xl text-site-text">Meeting confirmed</p>
+        <p className="max-w-sm text-sm text-site-muted">
+          Check your email for the calendar invite.
+        </p>
+      </div>
     );
   }
 
   if (status === "loading") {
-    return <p className="text-muted-foreground">Loading availability...</p>;
+    return <p className="py-12 text-center text-sm text-site-muted">Loading availability…</p>;
   }
 
   if (slots.length === 0) {
     return (
-      <p className="text-muted-foreground">
+      <p className="py-12 text-center text-sm text-site-muted">
         No open slots right now — please check back soon.
       </p>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {error && <p className="text-sm text-destructive">{error}</p>}
-      <div className="flex flex-wrap gap-2">
-        {dayGroups.map((day) => (
-          <Button
-            key={day.key}
-            type="button"
-            variant={activeDay?.key === day.key ? "default" : "outline"}
-            size="sm"
-            onClick={() => {
-              setSelectedDay(day.key);
-              setSelectedSlot(null);
-            }}
-          >
-            {day.label}
-          </Button>
-        ))}
-      </div>
-      {activeDay && (
-        <div className="flex flex-wrap gap-2">
-          {activeDay.slots.map((slot) => (
-            <Button
-              key={slot.toISOString()}
+    <div className="space-y-8">
+      {error && <p className="text-sm text-red-400">{error}</p>}
+
+      <div className="space-y-3">
+        <p className="text-sm font-medium text-site-accent">Pick a day</p>
+        <div className="flex flex-wrap gap-3">
+          {dayGroups.map((day) => (
+            <button
+              key={day.key}
               type="button"
-              variant={selectedSlot?.getTime() === slot.getTime() ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedSlot(slot)}
+              className={chipClass(activeDay?.key === day.key)}
+              onClick={() => {
+                setSelectedDay(day.key);
+                setSelectedSlot(null);
+              }}
             >
-              {timeFormatter.format(slot)}
-            </Button>
+              {day.label}
+            </button>
           ))}
         </div>
+      </div>
+
+      {activeDay && (
+        <div className="space-y-3">
+          <p className="text-sm font-medium text-site-accent">Pick a time</p>
+          <div className="flex flex-wrap gap-3">
+            {activeDay.slots.map((slot) => (
+              <button
+                key={slot.toISOString()}
+                type="button"
+                className={chipClass(selectedSlot?.getTime() === slot.getTime())}
+                onClick={() => setSelectedSlot(slot)}
+              >
+                {timeFormatter.format(slot)}
+              </button>
+            ))}
+          </div>
+        </div>
       )}
+
       {selectedSlot && (
-        <form onSubmit={handleBook} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="meeting-name">Name</Label>
-            <Input id="meeting-name" name="name" required />
+        <form onSubmit={handleBook} className="space-y-6 border-t border-site-border pt-8">
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div className="space-y-2.5">
+              <label
+                htmlFor="meeting-name"
+                className="block text-sm font-medium text-site-accent"
+              >
+                Full name
+              </label>
+              <input id="meeting-name" name="name" required className="site-field" />
+            </div>
+            <div className="space-y-2.5">
+              <label
+                htmlFor="meeting-email"
+                className="block text-sm font-medium text-site-accent"
+              >
+                Email address
+              </label>
+              <input
+                id="meeting-email"
+                name="email"
+                type="email"
+                required
+                className="site-field"
+              />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="meeting-email">Email</Label>
-            <Input id="meeting-email" name="email" type="email" required />
+          <div className="space-y-2.5">
+            <label
+              htmlFor="meeting-topic"
+              className="block text-sm font-medium text-site-accent"
+            >
+              What would you like to discuss?
+            </label>
+            <textarea
+              id="meeting-topic"
+              name="topic"
+              required
+              rows={4}
+              className="site-field resize-y"
+            />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="meeting-topic">Topic</Label>
-            <Textarea id="meeting-topic" name="topic" required />
-          </div>
-          <Button type="submit" className="w-full" disabled={status === "booking"}>
-            {status === "booking" ? "Booking..." : `Book ${timeFormatter.format(selectedSlot)}`}
-          </Button>
+
+          <Magnetic className="block w-full">
+            <button
+              type="submit"
+              disabled={status === "booking"}
+              className="site-pill w-full bg-white px-10 py-4.5 text-[#050505] hover:shadow-[0_20px_40px_var(--site-glow)] disabled:opacity-60"
+            >
+              {status === "booking"
+                ? "Booking…"
+                : `Book ${timeFormatter.format(selectedSlot)}`}
+            </button>
+          </Magnetic>
         </form>
       )}
     </div>

@@ -30,6 +30,7 @@ import {
   movePortfolioItemDown,
   movePortfolioItemUp,
   toggleFeatured,
+  togglePortfolioActive,
 } from "./actions";
 import type { PortfolioItem } from "@prisma/client";
 
@@ -43,6 +44,7 @@ export function PortfolioTable({ items }: { items: PortfolioItem[] }) {
           <TableHead>Title</TableHead>
           <TableHead>Tags</TableHead>
           <TableHead>Featured</TableHead>
+          <TableHead>Active</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -86,6 +88,12 @@ export function PortfolioTable({ items }: { items: PortfolioItem[] }) {
               <Switch
                 checked={item.featured}
                 onCheckedChange={(checked) => toggleFeatured(item.id, checked)}
+              />
+            </TableCell>
+            <TableCell>
+              <Switch
+                checked={item.active}
+                onCheckedChange={(checked) => togglePortfolioActive(item.id, checked)}
               />
             </TableCell>
             <TableCell className="flex justify-end gap-2">

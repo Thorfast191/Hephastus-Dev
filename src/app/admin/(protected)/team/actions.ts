@@ -34,6 +34,7 @@ export async function createTeamMember(formData: FormData) {
   });
 
   revalidatePath("/admin/team");
+  revalidatePath("/");
 }
 
 export async function updateTeamMember(id: string, formData: FormData) {
@@ -41,18 +42,21 @@ export async function updateTeamMember(id: string, formData: FormData) {
   const parsed = readForm(formData);
   await prisma.teamMember.update({ where: { id }, data: parsed });
   revalidatePath("/admin/team");
+  revalidatePath("/");
 }
 
 export async function deleteTeamMember(id: string) {
   await assertAdmin();
   await prisma.teamMember.delete({ where: { id } });
   revalidatePath("/admin/team");
+  revalidatePath("/");
 }
 
 export async function toggleTeamMemberActive(id: string, active: boolean) {
   await assertAdmin();
   await prisma.teamMember.update({ where: { id }, data: { active } });
   revalidatePath("/admin/team");
+  revalidatePath("/");
 }
 
 export async function moveTeamMemberUp(id: string) {
@@ -69,6 +73,7 @@ export async function moveTeamMemberUp(id: string) {
     prisma.teamMember.update({ where: { id: prev.id }, data: { order: member.order } }),
   ]);
   revalidatePath("/admin/team");
+  revalidatePath("/");
 }
 
 export async function moveTeamMemberDown(id: string) {
@@ -85,4 +90,5 @@ export async function moveTeamMemberDown(id: string) {
     prisma.teamMember.update({ where: { id: next.id }, data: { order: member.order } }),
   ]);
   revalidatePath("/admin/team");
+  revalidatePath("/");
 }

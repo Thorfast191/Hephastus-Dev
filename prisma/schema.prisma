@@ -38,6 +38,7 @@ model Service {
   title       String
   description String
   icon        String
+  tags        String[] @default([])
   order       Int      @default(0)
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())
@@ -55,6 +56,7 @@ model PortfolioItem {
   externalLink String?
   order        Int      @default(0)
   featured     Boolean  @default(false)
+  active       Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
@@ -66,8 +68,19 @@ model Testimonial {
   company    String?
   photo      String?
   order      Int      @default(0)
+  active     Boolean  @default(true)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+model Faq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model TeamMember {
@@ -86,6 +99,15 @@ model SiteSettings {
   id                  String   @id @default(cuid())
   agencyName          String
   tagline             String
+  heroEyebrow         String?
+  heroHeadline        String?
+  heroHeadlineAccent  String?
+  heroSubtitle        String?
+  heroPrimaryLabel    String?
+  heroPrimaryHref     String?
+  heroSecondaryLabel  String?
+  heroSecondaryHref   String?
+  budgetRanges        String[] @default([])
   contactEmail        String
   contactPhone        String
   socialLinks         Json
@@ -106,6 +128,8 @@ model Lead {
   message   String
   serviceId String?
   service   Service?   @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  projectType String?
+  budgetRange String?
   status    LeadStatus @default(NEW)
   notes     String     @default("")
   createdAt DateTime   @default(now())

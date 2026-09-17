@@ -8,6 +8,20 @@ import { assertAdmin } from "@/lib/admin-guard";
 const settingsSchema = z.object({
   agencyName: z.string().min(1),
   tagline: z.string().min(1),
+  heroEyebrow: z.string().trim().transform((v) => (v === "" ? null : v)),
+  heroHeadline: z.string().trim().transform((v) => (v === "" ? null : v)),
+  heroHeadlineAccent: z.string().trim().transform((v) => (v === "" ? null : v)),
+  heroPrimaryLabel: z.string().trim().transform((v) => (v === "" ? null : v)),
+  heroPrimaryHref: z.string().trim().transform((v) => (v === "" ? null : v)),
+  heroSecondaryLabel: z.string().trim().transform((v) => (v === "" ? null : v)),
+  heroSecondaryHref: z.string().trim().transform((v) => (v === "" ? null : v)),
+  budgetRanges: z.string().transform((v) =>
+    v
+      .split(",")
+      .map((b) => b.trim())
+      .filter(Boolean)
+  ),
+  heroSubtitle: z.string().trim().transform((v) => (v === "" ? null : v)),
   contactEmail: z.string().email(),
   contactPhone: z.string().min(1),
   smtpSenderName: z.string().min(1),
@@ -25,6 +39,15 @@ export async function updateSettings(formData: FormData) {
   const parsed = settingsSchema.parse({
     agencyName: formData.get("agencyName"),
     tagline: formData.get("tagline"),
+    heroEyebrow: formData.get("heroEyebrow"),
+    heroHeadline: formData.get("heroHeadline"),
+    heroHeadlineAccent: formData.get("heroHeadlineAccent"),
+    heroPrimaryLabel: formData.get("heroPrimaryLabel"),
+    heroPrimaryHref: formData.get("heroPrimaryHref"),
+    heroSecondaryLabel: formData.get("heroSecondaryLabel"),
+    heroSecondaryHref: formData.get("heroSecondaryHref"),
+    budgetRanges: formData.get("budgetRanges") ?? "",
+    heroSubtitle: formData.get("heroSubtitle"),
     contactEmail: formData.get("contactEmail"),
     contactPhone: formData.get("contactPhone"),
     smtpSenderName: formData.get("smtpSenderName"),
@@ -45,6 +68,15 @@ export async function updateSettings(formData: FormData) {
   const data = {
     agencyName: parsed.agencyName,
     tagline: parsed.tagline,
+    heroEyebrow: parsed.heroEyebrow,
+    heroHeadline: parsed.heroHeadline,
+    heroHeadlineAccent: parsed.heroHeadlineAccent,
+    heroPrimaryLabel: parsed.heroPrimaryLabel,
+    heroPrimaryHref: parsed.heroPrimaryHref,
+    heroSecondaryLabel: parsed.heroSecondaryLabel,
+    heroSecondaryHref: parsed.heroSecondaryHref,
+    budgetRanges: parsed.budgetRanges,
+    heroSubtitle: parsed.heroSubtitle,
     contactEmail: parsed.contactEmail,
     contactPhone: parsed.contactPhone,
     smtpSenderName: parsed.smtpSenderName,
@@ -62,4 +94,5 @@ export async function updateSettings(formData: FormData) {
   });
 
   revalidatePath("/admin/settings");
+  revalidatePath("/");
 }

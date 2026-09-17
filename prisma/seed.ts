@@ -96,6 +96,27 @@ const TESTIMONIALS: Prisma.TestimonialCreateManyInput[] = [
   },
 ];
 
+const FAQS: Prisma.FaqCreateManyInput[] = [
+  {
+    question: "How long does a typical project take?",
+    answer:
+      "[Placeholder] Describe your usual delivery timeline here — replace via /admin.",
+    order: 0,
+  },
+  {
+    question: "Do you offer post-launch support?",
+    answer:
+      "[Placeholder] Describe your support and maintenance offering — replace via /admin.",
+    order: 1,
+  },
+  {
+    question: "What technologies do you work with?",
+    answer:
+      "[Placeholder] List the stack you build on — replace via /admin.",
+    order: 2,
+  },
+];
+
 const TEAM_MEMBERS: Prisma.TeamMemberCreateManyInput[] = [
   {
     name: "Placeholder Name",
@@ -123,6 +144,16 @@ async function main() {
       id: "singleton",
       agencyName: "[Placeholder Agency Name]",
       tagline: "[Placeholder] One-line value proposition — replace via /admin.",
+      heroEyebrow: "[Placeholder] Full service software agency",
+      heroHeadline: "Software that",
+      heroHeadlineAccent: "drives revenue",
+      heroPrimaryLabel: "View our work",
+      heroPrimaryHref: "#portfolio",
+      heroSecondaryLabel: "Get in touch",
+      heroSecondaryHref: "#contact",
+      budgetRanges: ["$5k – $10k", "$10k – $25k", "$25k – $50k", "$50k+"],
+      heroSubtitle:
+        "[Placeholder] One or two sentences under the headline — replace via /admin.",
       contactEmail: "hello@example.com",
       contactPhone: "+1 (555) 555-5555",
       socialLinks: {},
@@ -144,6 +175,10 @@ async function main() {
 
   if ((await prisma.testimonial.count()) === 0) {
     await prisma.testimonial.createMany({ data: TESTIMONIALS });
+  }
+
+  if ((await prisma.faq.count()) === 0) {
+    await prisma.faq.createMany({ data: FAQS });
   }
 
   if ((await prisma.teamMember.count()) === 0) {

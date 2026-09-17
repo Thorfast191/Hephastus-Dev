@@ -1,61 +1,75 @@
 import Image from "next/image";
-import { ExternalLink } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Reveal } from "./reveal";
+import { ArrowUpRight } from "lucide-react";
+import { SectionHeading } from "./section-heading";
+import { Reveal } from "@/components/motion/reveal";
 import type { PortfolioItem } from "@prisma/client";
 
 export function PortfolioSection({ items }: { items: PortfolioItem[] }) {
   if (items.length === 0) return null;
 
   return (
-    <section id="portfolio" className="bg-muted/30 py-16">
-      <Reveal>
-        <div className="mx-auto max-w-5xl px-6">
-          <h2 className="font-heading text-3xl font-semibold">Portfolio</h2>
-          <div className="mt-8 grid gap-6 sm:grid-cols-2">
-            {items.map((item) => (
-              <Card key={item.id}>
+    <section id="portfolio" className="relative px-6 py-28 sm:py-36">
+      <div className="mx-auto max-w-7xl">
+        <SectionHeading
+          eyebrow="02 — Curated work"
+          title="Selected projects"
+          description="A sample of recent builds, chosen for the problems they solved rather than the pixels they shipped."
+        />
+
+        <div className="mt-20 grid gap-8 md:grid-cols-2">
+          {items.map((item, index) => (
+            <Reveal
+              key={item.id}
+              delay={(index % 2) * 0.12}
+              /* Nudging the right-hand column down breaks the grid's lockstep
+                 and gives the section an editorial rhythm. */
+              className={index % 2 === 1 ? "md:mt-16" : undefined}
+            >
+              <article className="group h-full overflow-hidden rounded-3xl border border-site-border bg-site-surface transition-all duration-[600ms] ease-site hover:-translate-y-2 hover:border-site-border-strong">
                 {item.images[0] && (
-                  <div className="relative h-48 w-full">
+                  <div className="relative aspect-[4/3] w-full overflow-hidden">
                     <Image
                       src={item.images[0]}
                       alt={item.title}
                       fill
-                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover transition-transform duration-[800ms] ease-site group-hover:scale-[1.08]"
+                    />
+                    <div
+                      aria-hidden
+                      className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/20 to-transparent"
                     />
                   </div>
                 )}
-                <CardHeader>
-                  <CardTitle className="font-heading">{item.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm text-muted-foreground">
-                  <p>{item.description}</p>
+
+                <div className="p-8">
                   {item.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {item.tags.map((tag) => (
-                        <Badge key={tag} variant="secondary">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
+                    <p className="text-[0.7rem] uppercase tracking-[0.2em] text-site-accent">
+                      {item.tags.join(" / ")}
+                    </p>
                   )}
+                  <h3 className="site-h3 mt-4 text-2xl text-site-text">{item.title}</h3>
+                  <p className="mt-4 text-sm leading-relaxed text-site-muted">
+                    {item.description}
+                  </p>
+
                   {item.externalLink && (
                     <a
                       href={item.externalLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-foreground hover:underline"
+                      className="mt-6 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.1em] text-site-text transition-colors duration-500 ease-site hover:text-site-accent"
                     >
-                      View project <ExternalLink className="h-3.5 w-3.5" />
+                      View project
+                      <ArrowUpRight className="h-4 w-4 transition-transform duration-500 ease-site group-hover:translate-x-1 group-hover:-translate-y-1" />
                     </a>
                   )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                </div>
+              </article>
+            </Reveal>
+          ))}
         </div>
-      </Reveal>
+      </div>
     </section>
   );
 }

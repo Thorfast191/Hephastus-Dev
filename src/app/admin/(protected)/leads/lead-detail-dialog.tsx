@@ -58,6 +58,18 @@ export function LeadDetailDialog({
               {lead.service.title}
             </p>
           )}
+          {lead.projectType && (
+            <p>
+              <span className="text-muted-foreground">Project type: </span>
+              {lead.projectType}
+            </p>
+          )}
+          {lead.budgetRange && (
+            <p>
+              <span className="text-muted-foreground">Budget: </span>
+              {lead.budgetRange}
+            </p>
+          )}
           <p className="whitespace-pre-wrap rounded-md bg-muted p-3">{lead.message}</p>
           <div className="space-y-2">
             <Label>Status</Label>

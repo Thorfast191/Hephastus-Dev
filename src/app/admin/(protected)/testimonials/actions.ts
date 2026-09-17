@@ -37,6 +37,7 @@ export async function createTestimonial(formData: FormData) {
   });
 
   revalidatePath("/admin/testimonials");
+  revalidatePath("/");
 }
 
 export async function updateTestimonial(id: string, formData: FormData) {
@@ -44,12 +45,21 @@ export async function updateTestimonial(id: string, formData: FormData) {
   const parsed = readForm(formData);
   await prisma.testimonial.update({ where: { id }, data: parsed });
   revalidatePath("/admin/testimonials");
+  revalidatePath("/");
 }
 
 export async function deleteTestimonial(id: string) {
   await assertAdmin();
   await prisma.testimonial.delete({ where: { id } });
   revalidatePath("/admin/testimonials");
+  revalidatePath("/");
+}
+
+export async function toggleTestimonialActive(id: string, active: boolean) {
+  await assertAdmin();
+  await prisma.testimonial.update({ where: { id }, data: { active } });
+  revalidatePath("/admin/testimonials");
+  revalidatePath("/");
 }
 
 export async function moveTestimonialUp(id: string) {
@@ -72,6 +82,7 @@ export async function moveTestimonialUp(id: string) {
     }),
   ]);
   revalidatePath("/admin/testimonials");
+  revalidatePath("/");
 }
 
 export async function moveTestimonialDown(id: string) {
@@ -94,4 +105,5 @@ export async function moveTestimonialDown(id: string) {
     }),
   ]);
   revalidatePath("/admin/testimonials");
+  revalidatePath("/");
 }

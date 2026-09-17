@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-heading);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -121,11 +121,348 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* next/font declares --font-inter on <body>, so font-sans has to be applied
+     here and not on <html> — at the html scope the variable does not exist,
+     the font-family declaration is invalid, and everything falls back to the
+     browser default serif. */
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
   }
   html {
-    @apply font-sans;
     scroll-behavior: smooth;
+  }
+}
+/* ==========================================================================
+   Public site design layer
+   --------------------------------------------------------------------------
+   These tokens are deliberately NOT defined under `.dark`. next-themes writes
+   `.dark` onto <html> for the admin panel; keeping the public palette on its
+   own `--site-*` namespace at :root makes it structurally impossible for the
+   admin toggle to alter the public site.
+   ========================================================================== */
+
+:root {
+  --site-bg: #050505;
+  --site-bg-raised: #0a0a0f;
+  --site-surface: rgb(255 255 255 / 0.03);
+  --site-surface-hover: rgb(255 255 255 / 0.06);
+  --site-border: rgb(255 255 255 / 0.08);
+  --site-border-strong: rgb(255 255 255 / 0.14);
+  --site-text: #ffffff;
+  --site-muted: #94a3b8;
+  --site-accent: #6366f1;
+  --site-accent-2: #a855f7;
+  --site-glow: rgb(99 102 241 / 0.3);
+  --site-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --site-dur: 0.6s;
+}
+
+@theme inline {
+  --color-site-bg: var(--site-bg);
+  --color-site-bg-raised: var(--site-bg-raised);
+  --color-site-surface: var(--site-surface);
+  --color-site-surface-hover: var(--site-surface-hover);
+  --color-site-border: var(--site-border);
+  --color-site-border-strong: var(--site-border-strong);
+  --color-site-text: var(--site-text);
+  --color-site-muted: var(--site-muted);
+  --color-site-accent: var(--site-accent);
+  --color-site-accent-2: var(--site-accent-2);
+  --color-site-glow: var(--site-glow);
+  --ease-site: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.site-root {
+  color-scheme: dark;
+  background-color: var(--site-bg);
+  color: var(--site-text);
+  position: relative;
+  overflow-x: clip;
+}
+
+.site-root ::selection {
+  background: var(--site-accent);
+  color: #fff;
+}
+
+/* Headings ---------------------------------------------------------------- */
+
+.site-display {
+  font-family: var(--font-heading), system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+  font-size: clamp(3.25rem, 9vw, 8rem);
+}
+
+.site-h2 {
+  font-family: var(--font-heading), system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  font-size: clamp(2.25rem, 5vw, 4.5rem);
+}
+
+.site-h3 {
+  font-family: var(--font-heading), system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.site-eyebrow {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--site-accent);
+}
+
+/* The two-tone hero treatment: a white line with a soft bloom, then an accent
+   line with a violet bloom. text-shadow rather than a filter so the glow does
+   not force the text onto its own compositing layer at large sizes. */
+.site-bloom-light {
+  color: #f1f5f9;
+  text-shadow: 0 0 80px rgb(255 255 255 / 0.25);
+}
+
+.site-bloom-accent {
+  color: #b9b3f5;
+  text-shadow: 0 0 80px rgb(139 122 246 / 0.45);
+}
+
+/* Surfaces ---------------------------------------------------------------- */
+
+.site-glass {
+  background-color: var(--site-surface);
+  border: 1px solid var(--site-border);
+  backdrop-filter: blur(12px);
+}
+
+.site-pill {
+  border-radius: 100px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  transition: transform var(--site-dur) var(--site-ease),
+    box-shadow var(--site-dur) var(--site-ease),
+    background-color var(--site-dur) var(--site-ease),
+    border-color var(--site-dur) var(--site-ease);
+}
+
+/* Ambient background blobs ------------------------------------------------ */
+
+@keyframes site-drift-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(8vw, 6vh, 0) scale(1.15);
+  }
+}
+
+@keyframes site-drift-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.1);
+  }
+  50% {
+    transform: translate3d(-10vw, -8vh, 0) scale(1);
+  }
+}
+
+.site-blob {
+  position: absolute;
+  width: 60vw;
+  height: 60vw;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--site-accent), var(--site-accent-2));
+  opacity: 0.12;
+  filter: blur(120px);
+  pointer-events: none;
+  will-change: transform;
+}
+
+.site-blob-a {
+  animation: site-drift-a 28s ease-in-out infinite;
+}
+
+.site-blob-b {
+  animation: site-drift-b 34s ease-in-out infinite;
+}
+
+/* Marquee ----------------------------------------------------------------- */
+
+@keyframes site-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.site-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: site-marquee var(--marquee-duration, 40s) linear infinite;
+  will-change: transform;
+}
+
+.site-marquee:hover .site-marquee-track {
+  animation-play-state: paused;
+}
+
+/* Fade the track out at both edges instead of hard-clipping it. */
+.site-marquee-mask {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 12%,
+    #000 88%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 12%,
+    #000 88%,
+    transparent
+  );
+}
+
+/* Custom cursor ----------------------------------------------------------- */
+
+.site-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid rgb(255 255 255 / 0.4);
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: difference;
+  transition: transform 0.25s var(--site-ease), background-color 0.25s var(--site-ease);
+  will-change: transform;
+}
+
+.site-cursor-hover {
+  background: rgb(255 255 255 / 0.1);
+  backdrop-filter: blur(2px);
+}
+
+/* Focus -------------------------------------------------------------------
+   The custom cursor hides the native pointer inside .site-root, so a visible
+   focus ring is not cosmetic here — without it a keyboard user has neither a
+   pointer nor a focus indicator and cannot navigate the page at all. Applied
+   via :focus-visible so it appears for keyboard traversal but not mouse clicks.
+   ------------------------------------------------------------------------- */
+
+.site-root :focus-visible {
+  outline-width: 2px;
+  outline-style: solid;
+  outline-color: var(--site-accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Pills and cards are already rounded; match the ring to their geometry. */
+.site-root a.site-pill:focus-visible,
+.site-root button.site-pill:focus-visible,
+.site-root button[role="tab"]:focus-visible {
+  outline-width: 2px;
+  outline-style: solid;
+  outline-color: var(--site-accent);
+  outline-offset: 4px;
+  border-radius: 100px;
+}
+
+/* A skip link is the other half of keyboard access: it is the first tab stop
+   and lets a keyboard or screen-reader user bypass the fixed nav. */
+/* The conventional visually-hidden skip link: collapsed to a 1px clipped box
+   until focused, then restored to a real box. Sizing rather than offsetting
+   avoids a positional property competing between the two states. */
+.site-skip-link {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.site-root a.site-skip-link:focus,
+.site-root a.site-skip-link:focus-visible {
+  position: fixed;
+  top: 0.75rem;
+  left: 50%;
+  margin-left: -7rem;
+  width: 14rem;
+  height: auto;
+  padding: 0.85rem 1.5rem;
+  overflow: visible;
+  clip-path: none;
+  white-space: normal;
+  text-align: center;
+  z-index: 100;
+  background: var(--site-accent);
+  color: #fff;
+  border-radius: 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  outline-width: 2px;
+  outline-style: solid;
+  outline-color: #fff;
+  outline-offset: 2px;
+}
+
+/* Form controls ----------------------------------------------------------- */
+
+.site-field {
+  width: 100%;
+  border-radius: 0.75rem;
+  background-color: rgb(255 255 255 / 0.04);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  padding: 0.9rem 1.1rem;
+  color: var(--site-text);
+  transition: border-color 0.3s var(--site-ease), box-shadow 0.3s var(--site-ease);
+}
+
+.site-field::placeholder {
+  color: rgb(148 163 184 / 0.55);
+}
+
+.site-field:focus {
+  outline: none;
+  border-color: var(--site-accent);
+  box-shadow: 0 0 0 4px rgb(99 102 241 / 0.15);
+}
+
+.site-field option {
+  background-color: #0a0a0f;
+  color: var(--site-text);
+}
+
+/* Reduced motion ---------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .site-blob-a,
+  .site-blob-b,
+  .site-marquee-track {
+    animation: none !important;
+  }
+
+  .site-marquee-mask {
+    -webkit-mask-image: none;
+    mask-image: none;
   }
 }

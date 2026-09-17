@@ -66,6 +66,7 @@ export function LeadTable({ leads }: { leads: LeadWithService[] }) {
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Service</TableHead>
+            <TableHead>Budget</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -76,7 +77,8 @@ export function LeadTable({ leads }: { leads: LeadWithService[] }) {
               <TableCell>{lead.createdAt.toLocaleDateString()}</TableCell>
               <TableCell>{lead.name}</TableCell>
               <TableCell>{lead.email}</TableCell>
-              <TableCell>{lead.service?.title ?? "—"}</TableCell>
+              <TableCell>{lead.service?.title ?? lead.projectType ?? "—"}</TableCell>
+              <TableCell>{lead.budgetRange ?? "—"}</TableCell>
               <TableCell>
                 <Badge variant="secondary">{lead.status}</Badge>
               </TableCell>

@@ -9,6 +9,12 @@ const serviceSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   icon: z.string().min(1, "Icon is required"),
+  tags: z.string().transform((v) =>
+    v
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean)
+  ),
 });
 
 export async function createService(formData: FormData) {
@@ -17,6 +23,7 @@ export async function createService(formData: FormData) {
     title: formData.get("title"),
     description: formData.get("description"),
     icon: formData.get("icon"),
+    tags: formData.get("tags") ?? "",
   });
 
   const maxOrder = await prisma.service.aggregate({ _max: { order: true } });
@@ -29,6 +36,7 @@ export async function createService(formData: FormData) {
   });
 
   revalidatePath("/admin/services");
+  revalidatePath("/");
 }
 
 export async function updateService(id: string, formData: FormData) {
@@ -37,22 +45,26 @@ export async function updateService(id: string, formData: FormData) {
     title: formData.get("title"),
     description: formData.get("description"),
     icon: formData.get("icon"),
+    tags: formData.get("tags") ?? "",
   });
 
   await prisma.service.update({ where: { id }, data: parsed });
   revalidatePath("/admin/services");
+  revalidatePath("/");
 }
 
 export async function deleteService(id: string) {
   await assertAdmin();
   await prisma.service.delete({ where: { id } });
   revalidatePath("/admin/services");
+  revalidatePath("/");
 }
 
 export async function toggleServiceActive(id: string, active: boolean) {
   await assertAdmin();
   await prisma.service.update({ where: { id }, data: { active } });
   revalidatePath("/admin/services");
+  revalidatePath("/");
 }
 
 export async function moveServiceUp(id: string) {
@@ -75,6 +87,7 @@ export async function moveServiceUp(id: string) {
     }),
   ]);
   revalidatePath("/admin/services");
+  revalidatePath("/");
 }
 
 export async function moveServiceDown(id: string) {
@@ -97,4 +110,5 @@ export async function moveServiceDown(id: string) {
     }),
   ]);
   revalidatePath("/admin/services");
+  revalidatePath("/");
 }

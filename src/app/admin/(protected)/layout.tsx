@@ -67,6 +67,12 @@ export default async function AdminLayout({
           Team
         </a>
         <a
+          href="/admin/faqs"
+          className="text-muted-foreground hover:text-foreground"
+        >
+          FAQ
+        </a>
+        <a
           href="/admin/settings"
           className="text-muted-foreground hover:text-foreground"
         >

@@ -41,6 +41,7 @@ export async function createPortfolioItem(formData: FormData) {
   });
 
   revalidatePath("/admin/portfolio");
+  revalidatePath("/");
 }
 
 export async function updatePortfolioItem(id: string, formData: FormData) {
@@ -48,18 +49,28 @@ export async function updatePortfolioItem(id: string, formData: FormData) {
   const parsed = readForm(formData);
   await prisma.portfolioItem.update({ where: { id }, data: parsed });
   revalidatePath("/admin/portfolio");
+  revalidatePath("/");
 }
 
 export async function deletePortfolioItem(id: string) {
   await assertAdmin();
   await prisma.portfolioItem.delete({ where: { id } });
   revalidatePath("/admin/portfolio");
+  revalidatePath("/");
+}
+
+export async function togglePortfolioActive(id: string, active: boolean) {
+  await assertAdmin();
+  await prisma.portfolioItem.update({ where: { id }, data: { active } });
+  revalidatePath("/admin/portfolio");
+  revalidatePath("/");
 }
 
 export async function toggleFeatured(id: string, featured: boolean) {
   await assertAdmin();
   await prisma.portfolioItem.update({ where: { id }, data: { featured } });
   revalidatePath("/admin/portfolio");
+  revalidatePath("/");
 }
 
 export async function movePortfolioItemUp(id: string) {
@@ -76,6 +87,7 @@ export async function movePortfolioItemUp(id: string) {
     prisma.portfolioItem.update({ where: { id: prev.id }, data: { order: item.order } }),
   ]);
   revalidatePath("/admin/portfolio");
+  revalidatePath("/");
 }
 
 export async function movePortfolioItemDown(id: string) {
@@ -92,4 +104,5 @@ export async function movePortfolioItemDown(id: string) {
     prisma.portfolioItem.update({ where: { id: next.id }, data: { order: item.order } }),
   ]);
   revalidatePath("/admin/portfolio");
+  revalidatePath("/");
 }

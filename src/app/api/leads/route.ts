@@ -9,6 +9,8 @@ const leadSchema = z.object({
   company: z.string().trim().optional(),
   message: z.string().min(1),
   serviceId: z.string().optional(),
+  projectType: z.string().trim().optional(),
+  budgetRange: z.string().trim().optional(),
 });
 
 export async function POST(request: Request) {
@@ -19,7 +21,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
 
-  const { name, email, company, message, serviceId } = parsed.data;
+  const { name, email, company, message, serviceId, projectType, budgetRange } =
+    parsed.data;
 
   const lead = await prisma.lead.create({
     data: {
@@ -28,6 +31,8 @@ export async function POST(request: Request) {
       company: company || null,
       message,
       serviceId: serviceId || null,
+      projectType: projectType || null,
+      budgetRange: budgetRange || null,
     },
   });
 
@@ -39,7 +44,15 @@ export async function POST(request: Request) {
       await sendMail({
         to: settings.contactEmail,
         subject: `New lead: ${name}`,
-        text: `Name: ${name}\nEmail: ${email}\nCompany: ${company ?? "-"}\n\n${message}`,
+        text: [
+          `Name: ${name}`,
+          `Email: ${email}`,
+          `Company: ${company ?? "-"}`,
+          `Project type: ${projectType ?? "-"}`,
+          `Budget: ${budgetRange ?? "-"}`,
+          "",
+          message,
+        ].join("\n"),
         fromName,
       });
     }
