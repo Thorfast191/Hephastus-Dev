@@ -15,10 +15,13 @@ import type { ReactNode } from "react";
 export function Marquee({
   children,
   durationSeconds = 40,
+  reverse = false,
   className = "",
 }: {
   children: ReactNode;
   durationSeconds?: number;
+  /** Scroll left-to-right instead — for a second row that counter-moves. */
+  reverse?: boolean;
   className?: string;
 }) {
   const reduced = useReducedMotion();
@@ -42,7 +45,12 @@ export function Marquee({
     <div className={`site-marquee site-marquee-mask overflow-hidden ${className}`}>
       <div
         className="site-marquee-track gap-6"
-        style={{ "--marquee-duration": `${durationSeconds}s` } as React.CSSProperties}
+        style={
+          {
+            "--marquee-duration": `${durationSeconds}s`,
+            animationDirection: reverse ? "reverse" : undefined,
+          } as React.CSSProperties
+        }
       >
         {items.map((child, index) => (
           <div key={`a-${index}`} className="shrink-0">

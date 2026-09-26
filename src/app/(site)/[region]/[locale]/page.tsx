@@ -6,6 +6,7 @@ import { Hero } from "@/components/public/hero";
 import { ServicesSection } from "@/components/public/services-section";
 import { PortfolioSection } from "@/components/public/portfolio-section";
 import { TestimonialsSection } from "@/components/public/testimonials-section";
+import { TechStackSection } from "@/components/public/tech-stack-section";
 import { ProcessSection } from "@/components/public/process-section";
 import { FaqSection } from "@/components/public/faq-section";
 import { TeamSection } from "@/components/public/team-section";
@@ -105,6 +106,8 @@ export default async function Home({ params }: { params: Params }) {
         />
         <ServicesSection services={content.services} />
         <PortfolioSection items={content.portfolio} />
+        <TechStackSection items={settings.techStack} />
+        {/* Hidden until there are active testimonials — see TestimonialsSection. */}
         <TestimonialsSection testimonials={content.testimonials} />
         <ProcessSection />
         <FaqSection faqs={content.faqs} />

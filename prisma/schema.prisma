@@ -131,6 +131,8 @@ model SiteSettings {
   heroSecondaryLabel  Json?
   heroSecondaryHref   String?
   budgetRanges        String[] @default([])
+  /// Technologies shown in the "Our toolkit" marquee, in display order.
+  techStack           String[] @default([])
   contactEmail        String
   contactPhone        String
   whatsapp            String?

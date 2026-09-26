@@ -29,6 +29,11 @@
     "description": "A sample of recent builds, chosen for the problems they solved rather than the pixels they shipped.",
     "viewProject": "View project"
   },
+  "stack": {
+    "eyebrow": "Our toolkit",
+    "title": "Built with proven technology",
+    "description": "Mature, well-supported tools chosen for each job — so what we build for you is fast, secure and easy to maintain long after launch."
+  },
   "testimonials": {
     "eyebrow": "Social proof",
     "title": "What clients say",

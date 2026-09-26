@@ -108,6 +108,8 @@ const TESTIMONIALS: Prisma.TestimonialCreateManyInput[] = [
     company: "Placeholder Co.",
     photo: null,
     order: 0,
+    // Examples of the format only: hidden until real client quotes exist.
+    active: false,
   },
   {
     quote: {
@@ -118,6 +120,7 @@ const TESTIMONIALS: Prisma.TestimonialCreateManyInput[] = [
     company: "Placeholder Inc.",
     photo: null,
     order: 1,
+    active: false,
   },
 ];
 
@@ -193,6 +196,11 @@ const SHARED_SETTINGS = {
   contactEmail: "hello@example.com",
   socialLinks: {},
   smtpSenderName: "[Placeholder Agency Name]",
+  techStack: [
+    "Next.js", "React", "TypeScript", "Node.js", "PostgreSQL", "React Native",
+    "Flutter", "Electron", "Python", "TensorFlow", "PyTorch", "OpenAI",
+    "LangChain", "OpenCV", "Docker", "AWS",
+  ],
   slotDurationMinutes: 30,
   minNoticeHours: 24,
   bookingWindowDays: 30,

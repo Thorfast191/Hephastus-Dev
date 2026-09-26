@@ -23,6 +23,10 @@ const settingsSchema = z.object({
       .map((b) => b.trim())
       .filter(Boolean)
   ),
+  techStack: z.string().transform((v) =>
+    // Order kept, duplicates dropped (the marquee would show them twice).
+    [...new Set(v.split(",").map((t) => t.trim()).filter(Boolean))]
+  ),
   contactEmail: z.string().email(),
   contactPhone: z.string().min(1),
   whatsapp: optionalString,
@@ -55,6 +59,7 @@ export async function updateSettings(region: Region, formData: FormData) {
     heroPrimaryHref: formData.get("heroPrimaryHref"),
     heroSecondaryHref: formData.get("heroSecondaryHref"),
     budgetRanges: formData.get("budgetRanges") ?? "",
+    techStack: formData.get("techStack") ?? "",
     contactEmail: formData.get("contactEmail"),
     contactPhone: formData.get("contactPhone"),
     whatsapp: formData.get("whatsapp") ?? "",
@@ -89,6 +94,7 @@ export async function updateSettings(region: Region, formData: FormData) {
     heroSecondaryLabel: optionalJson("heroSecondaryLabel"),
     heroSecondaryHref: parsed.heroSecondaryHref,
     budgetRanges: parsed.budgetRanges,
+    techStack: parsed.techStack,
     contactEmail: parsed.contactEmail,
     contactPhone: parsed.contactPhone,
     whatsapp: parsed.whatsapp,

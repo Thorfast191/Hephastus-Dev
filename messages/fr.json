@@ -29,6 +29,11 @@
     "description": "Un aperçu de nos réalisations récentes, retenues pour les problèmes qu'elles ont résolus plus que pour leurs pixels.",
     "viewProject": "Voir le projet"
   },
+  "stack": {
+    "eyebrow": "Notre boîte à outils",
+    "title": "Des technologies éprouvées",
+    "description": "Des outils matures et bien maintenus, choisis selon chaque besoin — pour un produit rapide, sûr et facile à faire évoluer bien après le lancement."
+  },
   "testimonials": {
     "eyebrow": "Ils nous font confiance",
     "title": "Ce que disent nos clients",

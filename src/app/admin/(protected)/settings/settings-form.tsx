@@ -4,6 +4,7 @@ import type { Region, SiteSettings } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { LocalizedField } from "@/components/admin/localized-field";
 import { REGION_LOCALES, regionSlugFromEnum } from "@/lib/site/config";
 import { updateSettings } from "./actions";
@@ -126,6 +127,24 @@ export function SettingsForm({
           Button links can point to a section on this page (such as{" "}
           <code>#portfolio</code>) or to a full web address.
         </p>
+      </div>
+
+      <div className="rounded-lg border p-4 space-y-4">
+        <p className="text-sm font-medium">Our toolkit</p>
+        <div className="space-y-2">
+          <Label htmlFor="techStack">Technologies</Label>
+          <Textarea
+            id="techStack"
+            name="techStack"
+            rows={3}
+            defaultValue={settings?.techStack.join(", ") ?? ""}
+            placeholder="Next.js, React, Python, TensorFlow, AWS"
+          />
+          <p className="text-xs text-muted-foreground">
+            Separate with commas, in the order you want them shown. They scroll across the
+            homepage in the &ldquo;Our toolkit&rdquo; section. Leave blank to hide it.
+          </p>
+        </div>
       </div>
 
       <div className="rounded-lg border p-4 space-y-4">

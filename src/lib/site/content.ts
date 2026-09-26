@@ -20,6 +20,7 @@ export type SettingsView = {
   heroSecondaryLabel: string | null;
   heroSecondaryHref: string | null;
   budgetRanges: string[];
+  techStack: string[];
   contactEmail: string;
   contactPhone: string;
   whatsapp: string | null;
@@ -85,6 +86,7 @@ export async function getSettingsView(
     heroSecondaryLabel: localizeOptional(settings.heroSecondaryLabel, locale),
     heroSecondaryHref: settings.heroSecondaryHref,
     budgetRanges: settings.budgetRanges,
+    techStack: settings.techStack,
     contactEmail: settings.contactEmail,
     contactPhone: settings.contactPhone,
     whatsapp: settings.whatsapp,
