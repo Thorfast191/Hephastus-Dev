@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Magnetic } from "@/components/motion/magnetic";
 import { Blobs } from "@/components/motion/blobs";
 import { SITE_EASE } from "@/components/motion/ease";
@@ -31,6 +32,7 @@ export function Hero({
 }) {
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
+  const t = useTranslations("hero");
 
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -125,7 +127,7 @@ export function Hero({
               href={primaryHref || "#portfolio"}
               className="site-pill inline-block bg-white px-10 py-4 text-[#050505] hover:-translate-y-1 hover:shadow-[0_20px_40px_var(--site-glow)]"
             >
-              {primaryLabel || "View our work"}
+              {primaryLabel || t("primary")}
             </a>
           </Magnetic>
           <Magnetic>
@@ -133,7 +135,7 @@ export function Hero({
               href={secondaryHref || "#contact"}
               className="site-pill inline-block border border-site-border-strong px-10 py-4 text-site-text hover:-translate-y-1 hover:border-site-accent hover:bg-site-surface-hover"
             >
-              {secondaryLabel || "Get in touch"}
+              {secondaryLabel || t("secondary")}
             </a>
           </Magnetic>
         </motion.div>

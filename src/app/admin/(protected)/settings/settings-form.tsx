@@ -1,84 +1,101 @@
 "use client";
 
+import type { Region, SiteSettings } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LocalizedField } from "@/components/admin/localized-field";
+import { REGION_LOCALES, regionSlugFromEnum } from "@/lib/site/config";
 import { updateSettings } from "./actions";
-import type { SiteSettings } from "@prisma/client";
 
-export function SettingsForm({ settings }: { settings: SiteSettings | null }) {
+const EXAMPLES: Record<Region, { budgets: string; timezone: string; whatsapp: string }> = {
+  EU: {
+    budgets: "€5k – €10k, €10k – €25k, €25k – €50k, €50k+",
+    timezone: "Europe/Paris",
+    whatsapp: "+33 6 12 34 56 78",
+  },
+  BD: {
+    budgets: "৳50k – ৳1.5L, ৳1.5L – ৳5L, ৳5L – ৳10L, ৳10L+",
+    timezone: "Asia/Dhaka",
+    whatsapp: "+880 1711-000000",
+  },
+};
+
+export function SettingsForm({
+  region,
+  settings,
+  timezones,
+}: {
+  region: Region;
+  settings: SiteSettings | null;
+  /** Built on the server: the browser's own list can differ and break hydration. */
+  timezones: string[];
+}) {
   const socialLinks = (settings?.socialLinks as Record<string, string> | null) ?? {};
+  const locales = REGION_LOCALES[regionSlugFromEnum(region)];
+  const examples = EXAMPLES[region];
 
   return (
-    <form action={updateSettings} className="space-y-4">
+    <form action={updateSettings.bind(null, region)} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="agencyName">Agency name</Label>
         <Input id="agencyName" name="agencyName" defaultValue={settings?.agencyName} required />
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="tagline">Tagline</Label>
-        <Input id="tagline" name="tagline" defaultValue={settings?.tagline} required />
-      </div>
+      <LocalizedField
+        name="tagline"
+        label="Tagline"
+        value={settings?.tagline}
+        locales={locales}
+        required
+      />
+
       <div className="rounded-lg border p-4 space-y-4">
         <p className="text-sm font-medium">Hero section</p>
         <p className="text-xs text-muted-foreground">
-          Controls the largest text on the public homepage. Leave blank to fall back to
-          the agency name and tagline above.
+          Controls the largest text on this site&apos;s homepage. Leave blank to fall back
+          to the agency name and tagline above.
         </p>
-        <div className="space-y-2">
-          <Label htmlFor="heroEyebrow">Hero eyebrow</Label>
-          <Input
-            id="heroEyebrow"
-            name="heroEyebrow"
-            defaultValue={settings?.heroEyebrow ?? ""}
-            placeholder="e.g. Full service digital agency"
-          />
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="heroHeadline">Headline — first part</Label>
-            <Input
-              id="heroHeadline"
-              name="heroHeadline"
-              defaultValue={settings?.heroHeadline ?? ""}
-              placeholder="Software that"
-            />
-            <p className="text-xs text-muted-foreground">Shown in white.</p>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="heroHeadlineAccent">Headline — highlighted part</Label>
-            <Input
-              id="heroHeadlineAccent"
-              name="heroHeadlineAccent"
-              defaultValue={settings?.heroHeadlineAccent ?? ""}
-              placeholder="drives revenue"
-            />
-            <p className="text-xs text-muted-foreground">
-              Shown in the purple highlight colour. Leave blank for a single-colour
-              headline.
-            </p>
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="heroSubtitle">Hero subtitle</Label>
-          <Input
-            id="heroSubtitle"
-            name="heroSubtitle"
-            defaultValue={settings?.heroSubtitle ?? ""}
-            placeholder="One or two sentences under the headline."
-          />
-        </div>
+        <LocalizedField
+          name="heroEyebrow"
+          label="Hero eyebrow"
+          value={settings?.heroEyebrow}
+          locales={locales}
+          placeholder="e.g. Full service digital agency"
+        />
+        <LocalizedField
+          name="heroHeadline"
+          label="Headline — first part"
+          value={settings?.heroHeadline}
+          locales={locales}
+          placeholder="Software that"
+          hint="Shown in white."
+        />
+        <LocalizedField
+          name="heroHeadlineAccent"
+          label="Headline — highlighted part"
+          value={settings?.heroHeadlineAccent}
+          locales={locales}
+          placeholder="drives revenue"
+          hint="Shown in the purple highlight colour. Leave blank for a single-colour headline."
+        />
+        <LocalizedField
+          name="heroSubtitle"
+          label="Hero subtitle"
+          value={settings?.heroSubtitle}
+          locales={locales}
+          multiline
+          rows={2}
+          placeholder="One or two sentences under the headline."
+        />
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="heroPrimaryLabel">Main button text</Label>
-            <Input
-              id="heroPrimaryLabel"
-              name="heroPrimaryLabel"
-              defaultValue={settings?.heroPrimaryLabel ?? ""}
-              placeholder="View our work"
-            />
-          </div>
+          <LocalizedField
+            name="heroPrimaryLabel"
+            label="Main button text"
+            value={settings?.heroPrimaryLabel}
+            locales={locales}
+            placeholder="View our work"
+          />
           <div className="space-y-2">
             <Label htmlFor="heroPrimaryHref">Main button link</Label>
             <Input
@@ -88,15 +105,13 @@ export function SettingsForm({ settings }: { settings: SiteSettings | null }) {
               placeholder="#portfolio"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="heroSecondaryLabel">Second button text</Label>
-            <Input
-              id="heroSecondaryLabel"
-              name="heroSecondaryLabel"
-              defaultValue={settings?.heroSecondaryLabel ?? ""}
-              placeholder="Get in touch"
-            />
-          </div>
+          <LocalizedField
+            name="heroSecondaryLabel"
+            label="Second button text"
+            value={settings?.heroSecondaryLabel}
+            locales={locales}
+            placeholder="Get in touch"
+          />
           <div className="space-y-2">
             <Label htmlFor="heroSecondaryHref">Second button link</Label>
             <Input
@@ -114,35 +129,57 @@ export function SettingsForm({ settings }: { settings: SiteSettings | null }) {
       </div>
 
       <div className="rounded-lg border p-4 space-y-4">
-        <p className="text-sm font-medium">Contact form</p>
+        <p className="text-sm font-medium">Contact</p>
         <div className="space-y-2">
           <Label htmlFor="budgetRanges">Budget options</Label>
           <Input
             id="budgetRanges"
             name="budgetRanges"
             defaultValue={settings?.budgetRanges.join(", ") ?? ""}
-            placeholder="$5k – $10k, $10k – $25k, $25k – $50k, $50k+"
+            placeholder={examples.budgets}
           />
           <p className="text-xs text-muted-foreground">
-            Separate each option with a comma. These appear as the budget buttons on
-            the contact form. Leave blank to hide the budget question entirely.
+            In this site&apos;s currency. Separate each option with a comma. Leave blank to
+            hide the budget question entirely.
+          </p>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="contactEmail">Contact email</Label>
+          <Input
+            id="contactEmail"
+            name="contactEmail"
+            type="email"
+            defaultValue={settings?.contactEmail}
+            required
+          />
+          <p className="text-xs text-muted-foreground">
+            Lead and meeting notifications from this site go here.
+          </p>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="contactPhone">Contact phone</Label>
+          <Input
+            id="contactPhone"
+            name="contactPhone"
+            defaultValue={settings?.contactPhone}
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="whatsapp">WhatsApp number</Label>
+          <Input
+            id="whatsapp"
+            name="whatsapp"
+            defaultValue={settings?.whatsapp ?? ""}
+            placeholder={examples.whatsapp}
+          />
+          <p className="text-xs text-muted-foreground">
+            With country code. When set, a &ldquo;Chat on WhatsApp&rdquo; button appears in
+            the contact section and footer. Leave blank to hide it.
           </p>
         </div>
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="contactEmail">Contact email</Label>
-        <Input
-          id="contactEmail"
-          name="contactEmail"
-          type="email"
-          defaultValue={settings?.contactEmail}
-          required
-        />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="contactPhone">Contact phone</Label>
-        <Input id="contactPhone" name="contactPhone" defaultValue={settings?.contactPhone} required />
-      </div>
+
       <div className="space-y-2">
         <Label htmlFor="twitter">Twitter/X URL</Label>
         <Input id="twitter" name="twitter" defaultValue={socialLinks.twitter ?? ""} />
@@ -156,7 +193,7 @@ export function SettingsForm({ settings }: { settings: SiteSettings | null }) {
         <Input id="github" name="github" defaultValue={socialLinks.github ?? ""} />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="smtpSenderName">SMTP sender name</Label>
+        <Label htmlFor="smtpSenderName">Email sender name</Label>
         <Input
           id="smtpSenderName"
           name="smtpSenderName"
@@ -164,49 +201,63 @@ export function SettingsForm({ settings }: { settings: SiteSettings | null }) {
           required
         />
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="businessTimezone">Business timezone (IANA name)</Label>
-        <Input
-          id="businessTimezone"
-          name="businessTimezone"
-          defaultValue={settings?.businessTimezone}
-          placeholder="e.g. America/New_York"
-          required
-        />
-      </div>
-      <div className="grid grid-cols-3 gap-4">
+
+      <div className="rounded-lg border p-4 space-y-4">
+        <p className="text-sm font-medium">Booking</p>
         <div className="space-y-2">
-          <Label htmlFor="slotDurationMinutes">Slot duration (min)</Label>
-          <Input
-            id="slotDurationMinutes"
-            name="slotDurationMinutes"
-            type="number"
-            min={5}
-            defaultValue={settings?.slotDurationMinutes ?? 30}
+          <Label htmlFor="businessTimezone">Business timezone</Label>
+          {/* A list rather than free text: a typo'd zone would break booking. */}
+          <select
+            id="businessTimezone"
+            name="businessTimezone"
+            defaultValue={settings?.businessTimezone ?? examples.timezone}
             required
-          />
+            className="h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+          >
+            {timezones.map((zone) => (
+              <option key={zone} value={zone}>
+                {zone}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-muted-foreground">
+            This site&apos;s weekly availability hours are read in this timezone.
+          </p>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="minNoticeHours">Min notice (hrs)</Label>
-          <Input
-            id="minNoticeHours"
-            name="minNoticeHours"
-            type="number"
-            min={0}
-            defaultValue={settings?.minNoticeHours ?? 24}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="bookingWindowDays">Booking window (days)</Label>
-          <Input
-            id="bookingWindowDays"
-            name="bookingWindowDays"
-            type="number"
-            min={1}
-            defaultValue={settings?.bookingWindowDays ?? 30}
-            required
-          />
+        <div className="grid grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="slotDurationMinutes">Slot duration (min)</Label>
+            <Input
+              id="slotDurationMinutes"
+              name="slotDurationMinutes"
+              type="number"
+              min={5}
+              defaultValue={settings?.slotDurationMinutes ?? 30}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="minNoticeHours">Min notice (hrs)</Label>
+            <Input
+              id="minNoticeHours"
+              name="minNoticeHours"
+              type="number"
+              min={0}
+              defaultValue={settings?.minNoticeHours ?? 24}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="bookingWindowDays">Booking window (days)</Label>
+            <Input
+              id="bookingWindowDays"
+              name="bookingWindowDays"
+              type="number"
+              min={1}
+              defaultValue={settings?.bookingWindowDays ?? 30}
+              required
+            />
+          </div>
         </div>
       </div>
       <Button type="submit">Save changes</Button>

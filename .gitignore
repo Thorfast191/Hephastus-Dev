@@ -46,3 +46,6 @@ next-env.d.ts
 
 # user-uploaded files (local disk storage, not part of the build)
 /uploads/
+/backups
+/.next-verify/
+/.dev-admins.local.md

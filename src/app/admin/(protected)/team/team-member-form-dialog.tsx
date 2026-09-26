@@ -12,8 +12,8 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { ImageUpload } from "@/components/admin/image-upload";
+import { LocalizedField } from "@/components/admin/localized-field";
 import { createTeamMember, updateTeamMember } from "./actions";
 import type { TeamMember } from "@prisma/client";
 
@@ -38,7 +38,7 @@ export function TeamMemberFormDialog({
       <DialogTrigger className={buttonVariants({ variant, size })}>
         {children}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{member ? "Edit team member" : "Add team member"}</DialogTitle>
         </DialogHeader>
@@ -53,14 +53,11 @@ export function TeamMemberFormDialog({
             <Label htmlFor="name">Name</Label>
             <Input id="name" name="name" defaultValue={member?.name} required />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="role">Role</Label>
-            <Input id="role" name="role" defaultValue={member?.role} required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
-            <Textarea id="bio" name="bio" defaultValue={member?.bio} required />
-          </div>
+          <LocalizedField name="role" label="Role" value={member?.role} required />
+          <LocalizedField name="bio" label="Bio" value={member?.bio} multiline required />
+          <p className="text-xs text-muted-foreground">
+            Team members appear on both the Europe and Bangladesh sites.
+          </p>
           <div className="space-y-2">
             <Label>Photo</Label>
             <input type="hidden" name="photo" value={photo ?? ""} />

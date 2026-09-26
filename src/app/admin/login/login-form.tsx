@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +18,9 @@ export function LoginForm() {
     authenticate,
     undefined
   );
+  // Controlled so a failed attempt keeps the email: React resets uncontrolled
+  // fields after every form action, which made you retype it after a typo.
+  const [email, setEmail] = useState("");
 
   return (
     <Card className="w-full max-w-sm">
@@ -30,11 +33,25 @@ export function LoginForm() {
           <input type="hidden" name="redirectTo" value="/admin" />
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" required />
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="username"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" name="password" type="password" required />
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+            />
           </div>
           {errorMessage && (
             <p className="text-sm text-destructive">{errorMessage}</p>

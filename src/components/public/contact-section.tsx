@@ -1,26 +1,37 @@
 "use client";
 
 import { useState } from "react";
+import { MessageCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { ContactForm } from "./contact-form";
 import { Scheduler } from "./scheduler";
 import { Reveal } from "@/components/motion/reveal";
 import { Blobs } from "@/components/motion/blobs";
 
 const TABS = [
-  { id: "message", label: "Send a message" },
-  { id: "call", label: "Book a call" },
+  { id: "message", labelKey: "tabMessage" },
+  { id: "call", labelKey: "tabCall" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
 
+/** wa.me wants the number as bare digits with country code: +880 1711-000000 → 8801711000000. */
+function whatsappLink(number: string) {
+  return `https://wa.me/${number.replace(/\D/g, "")}`;
+}
+
 export function ContactSection({
   services,
   budgetRanges,
+  whatsapp,
 }: {
   services: { id: string; title: string }[];
   budgetRanges: string[];
+  /** Set per region in admin; the BD site leads with it. */
+  whatsapp: string | null;
 }) {
   const [tab, setTab] = useState<TabId>("message");
+  const t = useTranslations("contact");
 
   return (
     <section id="contact" className="relative overflow-hidden px-6 py-28 sm:py-36">
@@ -30,19 +41,33 @@ export function ContactSection({
         <Reveal>
           <div className="rounded-[2rem] border border-site-border bg-site-surface p-8 backdrop-blur-xl sm:p-14">
             <div className="text-center">
-              <span className="site-eyebrow">04 — Start your journey</span>
-              <h2 className="site-h2 mt-4 text-site-text">Let&apos;s build something</h2>
+              <span className="site-eyebrow">{t("eyebrow")}</span>
+              <h2 className="site-h2 mt-4 text-site-text">{t("title")}</h2>
               <p className="mx-auto mt-6 max-w-lg text-base leading-relaxed text-site-muted">
-                Tell us what you&apos;re working on, or grab a slot and talk it through
-                with us directly.
+                {t("description")}
               </p>
             </div>
+
+            {whatsapp && (
+              <div className="mt-10 flex flex-col items-center gap-3 text-center">
+                <a
+                  href={whatsappLink(whatsapp)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="site-pill inline-flex items-center gap-2.5 bg-[#25D366] px-8 py-4 text-[#050505] hover:-translate-y-1"
+                >
+                  <MessageCircle className="h-5 w-5" aria-hidden />
+                  {t("whatsapp")}
+                </a>
+                <p className="text-xs text-site-muted">{t("whatsappHint")}</p>
+              </div>
+            )}
 
             {/* Tabs rather than stacking: the form and the scheduler are each
                 tall enough that together they push the card past 2000px. */}
             <div
               role="tablist"
-              aria-label="Contact method"
+              aria-label={t("tabsLabel")}
               className="mx-auto mt-10 flex w-fit gap-1 rounded-full border border-site-border p-1.5"
             >
               {TABS.map((item) => (
@@ -60,7 +85,7 @@ export function ContactSection({
                       : "text-site-muted hover:text-site-text"
                   }`}
                 >
-                  {item.label}
+                  {t(item.labelKey)}
                 </button>
               ))}
             </div>

@@ -32,11 +32,19 @@ import {
 } from "@/components/ui/alert-dialog";
 import { LeadDetailDialog } from "./lead-detail-dialog";
 import { deleteLead } from "./actions";
+import { localize } from "@/lib/site/localized";
 import type { Lead, Service } from "@prisma/client";
 
 type LeadWithService = Lead & { service: Service | null };
 
 const FILTERS = ["ALL", "NEW", "CONTACTED", "WON", "LOST"] as const;
+
+// Fixed locale and zone: this renders on the server and again in the browser,
+// and a bare toLocaleDateString() differs between the two (hydration mismatch).
+const dateFormatter = new Intl.DateTimeFormat("en-GB", {
+  dateStyle: "medium",
+  timeZone: "UTC",
+});
 
 export function LeadTable({ leads }: { leads: LeadWithService[] }) {
   const [filter, setFilter] = useState<string>("ALL");
@@ -63,6 +71,7 @@ export function LeadTable({ leads }: { leads: LeadWithService[] }) {
         <TableHeader>
           <TableRow>
             <TableHead>Date</TableHead>
+            <TableHead>Site</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Service</TableHead>
@@ -74,10 +83,18 @@ export function LeadTable({ leads }: { leads: LeadWithService[] }) {
         <TableBody>
           {filtered.map((lead) => (
             <TableRow key={lead.id}>
-              <TableCell>{lead.createdAt.toLocaleDateString()}</TableCell>
+              <TableCell>{dateFormatter.format(lead.createdAt)}</TableCell>
+              <TableCell>
+                <Badge variant="outline">
+                  {lead.region} · {lead.locale.toUpperCase()}
+                  {lead.country && ` · ${lead.country}`}
+                </Badge>
+              </TableCell>
               <TableCell>{lead.name}</TableCell>
               <TableCell>{lead.email}</TableCell>
-              <TableCell>{lead.service?.title ?? lead.projectType ?? "—"}</TableCell>
+              <TableCell>
+                {lead.service ? localize(lead.service.title, "en") : lead.projectType ?? "—"}
+              </TableCell>
               <TableCell>{lead.budgetRange ?? "—"}</TableCell>
               <TableCell>
                 <Badge variant="secondary">{lead.status}</Badge>

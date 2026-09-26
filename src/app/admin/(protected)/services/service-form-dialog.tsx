@@ -12,8 +12,9 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { IconPicker } from "@/components/admin/icon-picker";
+import { LocalizedField } from "@/components/admin/localized-field";
+import { RegionCheckboxes } from "@/components/admin/region-fields";
 import { createService, updateService } from "./actions";
 import type { Service } from "@prisma/client";
 
@@ -38,7 +39,7 @@ export function ServiceFormDialog({
       <DialogTrigger className={buttonVariants({ variant, size })}>
         {children}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{service ? "Edit service" : "Add service"}</DialogTitle>
         </DialogHeader>
@@ -49,19 +50,15 @@ export function ServiceFormDialog({
           }}
           className="space-y-4"
         >
-          <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
-            <Input id="title" name="title" defaultValue={service?.title} required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              name="description"
-              defaultValue={service?.description}
-              required
-            />
-          </div>
+          <LocalizedField name="title" label="Title" value={service?.title} required />
+          <LocalizedField
+            name="description"
+            label="Description"
+            value={service?.description}
+            multiline
+            required
+          />
+          <RegionCheckboxes value={service?.regions} />
           <div className="space-y-2">
             <Label htmlFor="tags">Tags (comma-separated)</Label>
             <Input id="tags" name="tags" defaultValue={service?.tags.join(", ")} />

@@ -1,0 +1,147 @@
+{
+  "common": {
+    "skipToContent": "Skip to content",
+    "notConfigured": "Site settings have not been configured yet. Sign in to the admin panel to get started."
+  },
+  "nav": {
+    "services": "Services",
+    "portfolio": "Portfolio",
+    "process": "Process",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "cta": "Order a project",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "siteMenu": "Site menu"
+  },
+  "hero": {
+    "primary": "View our work",
+    "secondary": "Get in touch"
+  },
+  "services": {
+    "eyebrow": "01 — Solutions",
+    "title": "Everything you need, under one roof",
+    "description": "A full-service team covering strategy, design and engineering, so your product ships as one coherent piece of work."
+  },
+  "portfolio": {
+    "eyebrow": "02 — Curated work",
+    "title": "Selected projects",
+    "description": "A sample of recent builds, chosen for the problems they solved rather than the pixels they shipped.",
+    "viewProject": "View project"
+  },
+  "testimonials": {
+    "eyebrow": "Social proof",
+    "title": "What clients say",
+    "description": "The part of the work that matters most: whether it moved the number the client cared about."
+  },
+  "process": {
+    "eyebrow": "03 — Methodology",
+    "title": "How we work",
+    "description": "A deliberate sequence, not a black box. You see the work as it takes shape and steer it before anything is expensive to change.",
+    "cta": "Start a project",
+    "steps": {
+      "discover": {
+        "title": "Discover",
+        "description": "Understand your goals, constraints, and users before writing a line of code."
+      },
+      "design": {
+        "title": "Design",
+        "description": "Architect the solution and validate the approach with you before building."
+      },
+      "build": {
+        "title": "Build",
+        "description": "Iterative development with regular check-ins, not a black box until launch."
+      },
+      "deliver": {
+        "title": "Deliver",
+        "description": "Ship, support, and iterate based on how the product performs in the real world."
+      }
+    }
+  },
+  "faq": {
+    "eyebrow": "Knowledge base",
+    "title": "Common questions",
+    "description": "The things clients usually ask before we start. If yours is not here, just ask."
+  },
+  "team": {
+    "eyebrow": "The people",
+    "title": "Who you'll work with",
+    "description": "A small senior team. The people you meet are the people who build it."
+  },
+  "contact": {
+    "eyebrow": "04 — Start your journey",
+    "title": "Let's build something",
+    "description": "Tell us what you're working on, or grab a slot and talk it through with us directly.",
+    "tabsLabel": "Contact method",
+    "tabMessage": "Send a message",
+    "tabCall": "Book a call",
+    "whatsapp": "Chat on WhatsApp",
+    "whatsappHint": "Prefer to talk now? We usually reply within the hour."
+  },
+  "form": {
+    "name": "Full name",
+    "namePlaceholder": "Jane Doe",
+    "email": "Email address",
+    "emailPlaceholder": "jane@example.com",
+    "company": "Company",
+    "optional": "(optional)",
+    "companyPlaceholder": "Acme Inc.",
+    "projectType": "Project type",
+    "selectService": "Select a service",
+    "budget": "Budget range",
+    "message": "Project vision",
+    "messagePlaceholder": "Tell us about the problem you're solving and the impact you want to create...",
+    "error": "Something went wrong — please try again.",
+    "submit": "Initiate project",
+    "submitting": "Sending…",
+    "sentTitle": "Message received",
+    "sentBody": "Thanks for reaching out — we'll get back to you shortly."
+  },
+  "scheduler": {
+    "loadError": "Couldn't load availability. Please try again.",
+    "loading": "Loading availability…",
+    "empty": "No open slots right now — please check back soon.",
+    "pickDay": "Pick a day",
+    "pickTime": "Pick a time",
+    "timezoneNote": "Times shown in your timezone ({timezone}).",
+    "name": "Full name",
+    "email": "Email address",
+    "topic": "What would you like to discuss?",
+    "book": "Book {time}",
+    "booking": "Booking…",
+    "bookedTitle": "Meeting confirmed",
+    "bookedBody": "Check your email for the calendar invite.",
+    "error": "Something went wrong — please try again.",
+    "slotTaken": "That slot is no longer available — please pick another."
+  },
+  "footer": {
+    "navigate": "Navigate",
+    "elsewhere": "Elsewhere",
+    "rights": "© {year} {agency}. All rights reserved.",
+    "whatsapp": "WhatsApp"
+  },
+  "preferences": {
+    "title": "Welcome",
+    "description": "Choose where you are and the language you'd like. You can change this any time from the globe icon at the top of the page.",
+    "country": "Country or region",
+    "detected": "Detected automatically",
+    "language": "Language",
+    "site": "You'll see our {site} site.",
+    "continue": "Continue",
+    "close": "Close",
+    "switcherLabel": "Change language or region",
+    "siteEu": "Europe & International",
+    "siteBd": "Bangladesh"
+  },
+  "notFound": {
+    "title": "This page doesn't exist",
+    "description": "The page you're looking for may have been moved or removed.",
+    "back": "Back to home"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred while loading this page. Try again in a moment.",
+    "retry": "Try again",
+    "back": "Back to home"
+  }
+}

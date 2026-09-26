@@ -1,19 +1,21 @@
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { SectionHeading } from "./section-heading";
 import { Reveal } from "@/components/motion/reveal";
-import type { PortfolioItem } from "@prisma/client";
+import type { PortfolioView } from "@/lib/site/content";
 
-export function PortfolioSection({ items }: { items: PortfolioItem[] }) {
+export async function PortfolioSection({ items }: { items: PortfolioView[] }) {
   if (items.length === 0) return null;
+  const t = await getTranslations("portfolio");
 
   return (
     <section id="portfolio" className="relative px-6 py-28 sm:py-36">
       <div className="mx-auto max-w-7xl">
         <SectionHeading
-          eyebrow="02 — Curated work"
-          title="Selected projects"
-          description="A sample of recent builds, chosen for the problems they solved rather than the pixels they shipped."
+          eyebrow={t("eyebrow")}
+          title={t("title")}
+          description={t("description")}
         />
 
         <div className="mt-20 grid gap-8 md:grid-cols-2">
@@ -60,7 +62,7 @@ export function PortfolioSection({ items }: { items: PortfolioItem[] }) {
                       rel="noopener noreferrer"
                       className="mt-6 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.1em] text-site-text transition-colors duration-500 ease-site hover:text-site-accent"
                     >
-                      View project
+                      {t("viewProject")}
                       <ArrowUpRight className="h-4 w-4 transition-transform duration-500 ease-site group-hover:translate-x-1 group-hover:-translate-y-1" />
                     </a>
                   )}

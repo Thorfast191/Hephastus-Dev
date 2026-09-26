@@ -10,9 +10,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { LocalizedField } from "@/components/admin/localized-field";
+import { RegionCheckboxes } from "@/components/admin/region-fields";
 import { createFaq, updateFaq } from "./actions";
 import type { Faq } from "@prisma/client";
 
@@ -36,7 +35,7 @@ export function FaqFormDialog({
       <DialogTrigger className={buttonVariants({ variant, size })}>
         {children}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{faq ? "Edit question" : "Add question"}</DialogTitle>
         </DialogHeader>
@@ -47,20 +46,16 @@ export function FaqFormDialog({
           }}
           className="space-y-4"
         >
-          <div className="space-y-2">
-            <Label htmlFor="question">Question</Label>
-            <Input id="question" name="question" defaultValue={faq?.question} required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="answer">Answer</Label>
-            <Textarea
-              id="answer"
-              name="answer"
-              rows={5}
-              defaultValue={faq?.answer}
-              required
-            />
-          </div>
+          <LocalizedField name="question" label="Question" value={faq?.question} required />
+          <LocalizedField
+            name="answer"
+            label="Answer"
+            value={faq?.answer}
+            multiline
+            rows={4}
+            required
+          />
+          <RegionCheckboxes value={faq?.regions} />
           <Button type="submit" className="w-full">
             {faq ? "Save changes" : "Add question"}
           </Button>

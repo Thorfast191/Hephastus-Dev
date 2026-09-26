@@ -1,18 +1,24 @@
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 import { SectionHeading } from "./section-heading";
 import { Marquee } from "@/components/motion/marquee";
-import type { Testimonial } from "@prisma/client";
+import type { TestimonialView } from "@/lib/site/content";
 
-export function TestimonialsSection({ testimonials }: { testimonials: Testimonial[] }) {
+export async function TestimonialsSection({
+  testimonials,
+}: {
+  testimonials: TestimonialView[];
+}) {
   if (testimonials.length === 0) return null;
+  const t = await getTranslations("testimonials");
 
   return (
     <section id="testimonials" className="relative overflow-hidden py-28 sm:py-36">
       <div className="px-6">
         <SectionHeading
-          eyebrow="Social proof"
-          title="What clients say"
-          description="The part of the work that matters most: whether it moved the number the client cared about."
+          eyebrow={t("eyebrow")}
+          title={t("title")}
+          description={t("description")}
         />
       </div>
 

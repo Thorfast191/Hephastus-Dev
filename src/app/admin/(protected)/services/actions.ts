@@ -3,11 +3,12 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { assertAdmin } from "@/lib/admin-guard";
+import { assertAdmin, assertCanEditContent } from "@/lib/admin-guard";
+import { regionsToSave, reorderScope } from "@/lib/admin/content-access";
+import { revalidatePublicSite } from "@/lib/site/revalidate";
+import { readLocalized } from "@/lib/admin/form";
 
 const serviceSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
   icon: z.string().min(1, "Icon is required"),
   tags: z.string().transform((v) =>
     v
@@ -17,61 +18,76 @@ const serviceSchema = z.object({
   ),
 });
 
+function readForm(formData: FormData) {
+  return {
+    ...serviceSchema.parse({
+      icon: formData.get("icon"),
+      tags: formData.get("tags") ?? "",
+    }),
+    title: readLocalized(formData, "title"),
+    description: readLocalized(formData, "description"),
+  };
+}
+
+/** Region admins may only change items shown on their own site alone. */
+async function assertEditable(id: string) {
+  await assertAdmin();
+  const { regions } = await prisma.service.findUniqueOrThrow({
+    where: { id },
+    select: { regions: true },
+  });
+  await assertCanEditContent(regions);
+}
+
 export async function createService(formData: FormData) {
   await assertAdmin();
-  const parsed = serviceSchema.parse({
-    title: formData.get("title"),
-    description: formData.get("description"),
-    icon: formData.get("icon"),
-    tags: formData.get("tags") ?? "",
-  });
+  const parsed = readForm(formData);
 
   const maxOrder = await prisma.service.aggregate({ _max: { order: true } });
 
   await prisma.service.create({
     data: {
       ...parsed,
+      regions: await regionsToSave(formData),
       order: (maxOrder._max.order ?? -1) + 1,
     },
   });
 
   revalidatePath("/admin/services");
-  revalidatePath("/");
+  revalidatePublicSite();
 }
 
 export async function updateService(id: string, formData: FormData) {
-  await assertAdmin();
-  const parsed = serviceSchema.parse({
-    title: formData.get("title"),
-    description: formData.get("description"),
-    icon: formData.get("icon"),
-    tags: formData.get("tags") ?? "",
-  });
+  await assertEditable(id);
+  const parsed = readForm(formData);
 
-  await prisma.service.update({ where: { id }, data: parsed });
+  await prisma.service.update({
+    where: { id },
+    data: { ...parsed, regions: await regionsToSave(formData) },
+  });
   revalidatePath("/admin/services");
-  revalidatePath("/");
+  revalidatePublicSite();
 }
 
 export async function deleteService(id: string) {
-  await assertAdmin();
+  await assertEditable(id);
   await prisma.service.delete({ where: { id } });
   revalidatePath("/admin/services");
-  revalidatePath("/");
+  revalidatePublicSite();
 }
 
 export async function toggleServiceActive(id: string, active: boolean) {
-  await assertAdmin();
+  await assertEditable(id);
   await prisma.service.update({ where: { id }, data: { active } });
   revalidatePath("/admin/services");
-  revalidatePath("/");
+  revalidatePublicSite();
 }
 
 export async function moveServiceUp(id: string) {
-  await assertAdmin();
+  await assertEditable(id);
   const service = await prisma.service.findUniqueOrThrow({ where: { id } });
   const prev = await prisma.service.findFirst({
-    where: { order: { lt: service.order } },
+    where: { order: { lt: service.order }, ...(await reorderScope()) },
     orderBy: { order: "desc" },
   });
   if (!prev) return;
@@ -87,14 +103,14 @@ export async function moveServiceUp(id: string) {
     }),
   ]);
   revalidatePath("/admin/services");
-  revalidatePath("/");
+  revalidatePublicSite();
 }
 
 export async function moveServiceDown(id: string) {
-  await assertAdmin();
+  await assertEditable(id);
   const service = await prisma.service.findUniqueOrThrow({ where: { id } });
   const next = await prisma.service.findFirst({
-    where: { order: { gt: service.order } },
+    where: { order: { gt: service.order }, ...(await reorderScope()) },
     orderBy: { order: "asc" },
   });
   if (!next) return;
@@ -110,5 +126,5 @@ export async function moveServiceDown(id: string) {
     }),
   ]);
   revalidatePath("/admin/services");
-  revalidatePath("/");
+  revalidatePublicSite();
 }

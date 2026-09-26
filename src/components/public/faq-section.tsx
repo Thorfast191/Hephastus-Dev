@@ -3,13 +3,15 @@
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { SectionHeading } from "./section-heading";
 import { SITE_EASE } from "@/components/motion/ease";
-import type { Faq } from "@prisma/client";
+import type { FaqView } from "@/lib/site/content";
 
-export function FaqSection({ faqs }: { faqs: Faq[] }) {
+export function FaqSection({ faqs }: { faqs: FaqView[] }) {
   const [openId, setOpenId] = useState<string | null>(null);
   const reduced = useReducedMotion();
+  const t = useTranslations("faq");
 
   if (faqs.length === 0) return null;
 
@@ -17,9 +19,9 @@ export function FaqSection({ faqs }: { faqs: Faq[] }) {
     <section id="faq" className="relative px-6 py-28 sm:py-36">
       <div className="mx-auto max-w-4xl">
         <SectionHeading
-          eyebrow="Knowledge base"
-          title="Common questions"
-          description="The things clients usually ask before we start. If yours is not here, just ask."
+          eyebrow={t("eyebrow")}
+          title={t("title")}
+          description={t("description")}
         />
 
         <div className="mt-20">

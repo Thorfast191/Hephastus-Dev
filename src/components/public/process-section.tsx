@@ -2,31 +2,11 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Magnetic } from "@/components/motion/magnetic";
 import { Reveal } from "@/components/motion/reveal";
 
-const STEPS = [
-  {
-    title: "Discover",
-    description:
-      "Understand your goals, constraints, and users before writing a line of code.",
-  },
-  {
-    title: "Design",
-    description:
-      "Architect the solution and validate the approach with you before building.",
-  },
-  {
-    title: "Build",
-    description:
-      "Iterative development with regular check-ins, not a black box until launch.",
-  },
-  {
-    title: "Deliver",
-    description:
-      "Ship, support, and iterate based on how the product performs in the real world.",
-  },
-];
+const STEPS = ["discover", "design", "build", "deliver"] as const;
 
 /**
  * One step in the methodology list. Its index number lifts from muted to accent
@@ -74,24 +54,25 @@ function ProcessStep({
 }
 
 export function ProcessSection() {
+  const t = useTranslations("process");
+
   return (
     <section id="process" className="relative px-6 py-28 sm:py-36">
       <div className="mx-auto grid max-w-7xl gap-16 lg:grid-cols-2 lg:gap-24">
         {/* Sticky rail: the framing stays put while the steps scroll past it. */}
         <div className="lg:sticky lg:top-32 lg:self-start">
           <Reveal>
-            <span className="site-eyebrow">03 — Methodology</span>
-            <h2 className="site-h2 mt-4 text-site-text">How we work</h2>
+            <span className="site-eyebrow">{t("eyebrow")}</span>
+            <h2 className="site-h2 mt-4 text-site-text">{t("title")}</h2>
             <p className="mt-6 max-w-md text-base leading-relaxed text-site-muted sm:text-lg">
-              A deliberate sequence, not a black box. You see the work as it takes shape
-              and steer it before anything is expensive to change.
+              {t("description")}
             </p>
             <Magnetic className="mt-10">
               <a
                 href="#contact"
                 className="site-pill inline-block bg-white px-9 py-4 text-[#050505] hover:-translate-y-1 hover:shadow-[0_20px_40px_var(--site-glow)]"
               >
-                Start a project
+                {t("cta")}
               </a>
             </Magnetic>
           </Reveal>
@@ -100,10 +81,10 @@ export function ProcessSection() {
         <div>
           {STEPS.map((step, index) => (
             <ProcessStep
-              key={step.title}
+              key={step}
               index={index}
-              title={step.title}
-              description={step.description}
+              title={t(`steps.${step}.title`)}
+              description={t(`steps.${step}.description`)}
             />
           ))}
         </div>

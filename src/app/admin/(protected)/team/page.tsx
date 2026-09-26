@@ -1,9 +1,11 @@
 import { Plus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { requireSuperAdminPage } from "@/lib/admin-guard";
 import { TeamMemberFormDialog } from "./team-member-form-dialog";
 import { TeamMemberTable } from "./team-member-table";
 
 export default async function TeamPage() {
+  await requireSuperAdminPage();
   const members = await prisma.teamMember.findMany({ orderBy: { order: "asc" } });
 
   return (

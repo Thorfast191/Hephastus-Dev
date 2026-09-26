@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { sendMail } from "@/lib/email";
+import { leadAutoReply } from "@/lib/email-templates";
+import { REGION_ENUM } from "@/lib/site/config";
+import { getRegionSettings } from "@/lib/site/content";
+import { countryFromRequest, localeFor, regionFromRequest } from "@/lib/site/request";
 
 const leadSchema = z.object({
   name: z.string().min(1),
@@ -11,6 +15,7 @@ const leadSchema = z.object({
   serviceId: z.string().optional(),
   projectType: z.string().trim().optional(),
   budgetRange: z.string().trim().optional(),
+  locale: z.string().optional(),
 });
 
 export async function POST(request: Request) {
@@ -23,6 +28,9 @@ export async function POST(request: Request) {
 
   const { name, email, company, message, serviceId, projectType, budgetRange } =
     parsed.data;
+  const region = regionFromRequest(request);
+  const locale = localeFor(region, parsed.data.locale);
+  const country = countryFromRequest(request);
 
   const lead = await prisma.lead.create({
     data: {
@@ -33,18 +41,23 @@ export async function POST(request: Request) {
       serviceId: serviceId || null,
       projectType: projectType || null,
       budgetRange: budgetRange || null,
+      region: REGION_ENUM[region],
+      locale,
+      country,
     },
   });
 
   try {
-    const settings = await prisma.siteSettings.findFirst();
+    const settings = await getRegionSettings(region);
     const fromName = settings?.smtpSenderName ?? settings?.agencyName ?? "Agency";
 
     if (settings?.contactEmail) {
       await sendMail({
         to: settings.contactEmail,
-        subject: `New lead: ${name}`,
+        subject: `[${region.toUpperCase()}] New lead: ${name}`,
         text: [
+          `Site: ${region.toUpperCase()} (${locale})`,
+          `Country: ${country ?? "-"}`,
           `Name: ${name}`,
           `Email: ${email}`,
           `Company: ${company ?? "-"}`,
@@ -59,8 +72,7 @@ export async function POST(request: Request) {
 
     await sendMail({
       to: email,
-      subject: "Thanks for reaching out",
-      text: `Hi ${name},\n\nThanks for your message — we'll get back to you soon.\n\n${fromName}`,
+      ...leadAutoReply({ locale, name, signature: fromName }),
       fromName,
     });
   } catch (error) {

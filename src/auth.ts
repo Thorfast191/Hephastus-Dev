@@ -20,7 +20,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const password = credentials?.password as string | undefined;
         if (!email || !password) return null;
 
-        const user = await prisma.adminUser.findUnique({ where: { email } });
+        // Emails are stored lower-cased (see the Admins page); match any casing typed here.
+        const user = await prisma.adminUser.findFirst({
+          where: { email: { equals: email.trim(), mode: "insensitive" } },
+        });
         if (!user) return null;
 
         const isValid = await bcrypt.compare(password, user.passwordHash);

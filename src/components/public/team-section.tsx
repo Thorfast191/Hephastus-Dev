@@ -1,18 +1,20 @@
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 import { SectionHeading } from "./section-heading";
 import { StaggerGroup, StaggerItem } from "@/components/motion/stagger";
-import type { TeamMember } from "@prisma/client";
+import type { TeamMemberView } from "@/lib/site/content";
 
-export function TeamSection({ members }: { members: TeamMember[] }) {
+export async function TeamSection({ members }: { members: TeamMemberView[] }) {
   if (members.length === 0) return null;
+  const t = await getTranslations("team");
 
   return (
     <section id="team" className="relative px-6 py-28 sm:py-36">
       <div className="mx-auto max-w-7xl">
         <SectionHeading
-          eyebrow="The people"
-          title="Who you'll work with"
-          description="A small senior team. The people you meet are the people who build it."
+          eyebrow={t("eyebrow")}
+          title={t("title")}
+          description={t("description")}
         />
 
         <StaggerGroup className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

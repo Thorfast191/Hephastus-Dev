@@ -3,21 +3,24 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Magnetic } from "@/components/motion/magnetic";
 import { ScrollProgress } from "@/components/motion/scroll-progress";
 import { SITE_EASE } from "@/components/motion/ease";
+import { PreferencesButton } from "./preferences";
 
 const LINKS = [
-  { href: "#services", label: "Services", index: "01" },
-  { href: "#portfolio", label: "Portfolio", index: "02" },
-  { href: "#process", label: "Process", index: "03" },
-  { href: "#contact", label: "Contact", index: "04" },
-];
+  { href: "#services", key: "services", index: "01" },
+  { href: "#portfolio", key: "portfolio", index: "02" },
+  { href: "#process", key: "process", index: "03" },
+  { href: "#contact", key: "contact", index: "04" },
+] as const;
 
 export function SiteNav({ agencyName }: { agencyName: string }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const reduced = useReducedMotion();
+  const t = useTranslations("nav");
   const overlayRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -125,24 +128,29 @@ export function SiteNav({ agencyName }: { agencyName: string }) {
                 className="group flex items-center gap-2 text-xs font-medium uppercase tracking-[0.1em] text-site-text/60 transition-colors duration-500 ease-site hover:text-site-text"
               >
                 <span className="text-site-accent">{link.index}</span>
-                {link.label}
+                {t(link.key)}
               </a>
             ))}
           </div>
 
           <div className="flex items-center gap-3">
-            <Magnetic className="hidden sm:inline-block">
-              <a
-                href="#contact"
-                className="site-pill inline-block bg-white px-7 py-3.5 text-[#050505] hover:-translate-y-1 hover:shadow-[0_20px_40px_var(--site-glow)]"
-              >
-                Order a project
-              </a>
-            </Magnetic>
+            <PreferencesButton />
+            {/* Wrapper carries the breakpoint: Magnetic sets an inline
+                display, which would override a `hidden` class on itself. */}
+            <div className="hidden sm:block">
+              <Magnetic>
+                <a
+                  href="#contact"
+                  className="site-pill inline-block bg-white px-7 py-3.5 text-[#050505] hover:-translate-y-1 hover:shadow-[0_20px_40px_var(--site-glow)]"
+                >
+                  {t("cta")}
+                </a>
+              </Magnetic>
+            </div>
             <button
               ref={triggerRef}
               type="button"
-              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              aria-label={menuOpen ? t("closeMenu") : t("openMenu")}
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"
               onClick={() => setMenuOpen((open) => !open)}
@@ -162,7 +170,7 @@ export function SiteNav({ agencyName }: { agencyName: string }) {
             id="mobile-menu"
             role="dialog"
             aria-modal="true"
-            aria-label="Site menu"
+            aria-label={t("siteMenu")}
             className="fixed inset-0 z-40 flex flex-col justify-center gap-2 bg-[#050505] px-8 lg:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -184,7 +192,7 @@ export function SiteNav({ agencyName }: { agencyName: string }) {
                 }}
               >
                 <span className="text-sm text-site-accent">{link.index}</span>
-                {link.label}
+                {t(link.key)}
               </motion.a>
             ))}
             <motion.a
@@ -199,7 +207,7 @@ export function SiteNav({ agencyName }: { agencyName: string }) {
                 delay: reduced ? 0 : 0.08 * LINKS.length,
               }}
             >
-              Order a project
+              {t("cta")}
             </motion.a>
           </motion.div>
         )}

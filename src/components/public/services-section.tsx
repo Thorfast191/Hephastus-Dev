@@ -1,18 +1,20 @@
+import { getTranslations } from "next-intl/server";
 import { SectionHeading } from "./section-heading";
 import { ServiceCard } from "./service-card";
 import { StaggerGroup, StaggerItem } from "@/components/motion/stagger";
-import type { Service } from "@prisma/client";
+import type { ServiceView } from "@/lib/site/content";
 
-export function ServicesSection({ services }: { services: Service[] }) {
+export async function ServicesSection({ services }: { services: ServiceView[] }) {
   if (services.length === 0) return null;
+  const t = await getTranslations("services");
 
   return (
     <section id="services" className="relative px-6 py-28 sm:py-36">
       <div className="mx-auto max-w-7xl">
         <SectionHeading
-          eyebrow="01 — Solutions"
-          title="Everything you need, under one roof"
-          description="A full-service team covering strategy, design and engineering, so your product ships as one coherent piece of work."
+          eyebrow={t("eyebrow")}
+          title={t("title")}
+          description={t("description")}
         />
 
         <StaggerGroup className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

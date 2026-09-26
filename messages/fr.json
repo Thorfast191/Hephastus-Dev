@@ -1,0 +1,147 @@
+{
+  "common": {
+    "skipToContent": "Aller au contenu",
+    "notConfigured": "Les paramètres du site ne sont pas encore configurés. Connectez-vous au panneau d'administration pour commencer."
+  },
+  "nav": {
+    "services": "Services",
+    "portfolio": "Réalisations",
+    "process": "Méthode",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "cta": "Lancer un projet",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "siteMenu": "Menu du site"
+  },
+  "hero": {
+    "primary": "Voir nos réalisations",
+    "secondary": "Nous contacter"
+  },
+  "services": {
+    "eyebrow": "01 — Solutions",
+    "title": "Tout ce qu'il vous faut, au même endroit",
+    "description": "Une équipe complète — stratégie, design et ingénierie — pour que votre produit soit livré comme un ensemble cohérent."
+  },
+  "portfolio": {
+    "eyebrow": "02 — Sélection",
+    "title": "Projets choisis",
+    "description": "Un aperçu de nos réalisations récentes, retenues pour les problèmes qu'elles ont résolus plus que pour leurs pixels.",
+    "viewProject": "Voir le projet"
+  },
+  "testimonials": {
+    "eyebrow": "Ils nous font confiance",
+    "title": "Ce que disent nos clients",
+    "description": "Ce qui compte le plus dans notre travail : avoir fait bouger l'indicateur qui importait au client."
+  },
+  "process": {
+    "eyebrow": "03 — Méthodologie",
+    "title": "Notre façon de travailler",
+    "description": "Une démarche structurée, pas une boîte noire. Vous voyez le travail prendre forme et pouvez l'orienter avant que tout changement ne coûte cher.",
+    "cta": "Démarrer un projet",
+    "steps": {
+      "discover": {
+        "title": "Découvrir",
+        "description": "Comprendre vos objectifs, vos contraintes et vos utilisateurs avant d'écrire la moindre ligne de code."
+      },
+      "design": {
+        "title": "Concevoir",
+        "description": "Définir l'architecture de la solution et valider l'approche avec vous avant de construire."
+      },
+      "build": {
+        "title": "Développer",
+        "description": "Un développement itératif avec des points réguliers — pas une boîte noire jusqu'au lancement."
+      },
+      "deliver": {
+        "title": "Livrer",
+        "description": "Mettre en production, accompagner et améliorer selon les performances réelles du produit."
+      }
+    }
+  },
+  "faq": {
+    "eyebrow": "Questions fréquentes",
+    "title": "Vos questions",
+    "description": "Ce que nos clients demandent le plus souvent avant de commencer. Si votre question n'y figure pas, posez-la-nous."
+  },
+  "team": {
+    "eyebrow": "L'équipe",
+    "title": "Avec qui vous travaillerez",
+    "description": "Une petite équipe expérimentée. Les personnes que vous rencontrez sont celles qui construisent votre produit."
+  },
+  "contact": {
+    "eyebrow": "04 — Lancez-vous",
+    "title": "Construisons ensemble",
+    "description": "Parlez-nous de votre projet, ou réservez un créneau pour en discuter directement avec nous.",
+    "tabsLabel": "Moyen de contact",
+    "tabMessage": "Envoyer un message",
+    "tabCall": "Réserver un appel",
+    "whatsapp": "Discuter sur WhatsApp",
+    "whatsappHint": "Vous préférez échanger tout de suite ? Nous répondons généralement dans l'heure."
+  },
+  "form": {
+    "name": "Nom complet",
+    "namePlaceholder": "Marie Dupont",
+    "email": "Adresse e-mail",
+    "emailPlaceholder": "marie@exemple.fr",
+    "company": "Entreprise",
+    "optional": "(facultatif)",
+    "companyPlaceholder": "Société SAS",
+    "projectType": "Type de projet",
+    "selectService": "Choisir un service",
+    "budget": "Budget",
+    "message": "Votre projet",
+    "messagePlaceholder": "Décrivez le problème que vous cherchez à résoudre et l'impact que vous visez...",
+    "error": "Une erreur s'est produite — veuillez réessayer.",
+    "submit": "Envoyer ma demande",
+    "submitting": "Envoi…",
+    "sentTitle": "Message bien reçu",
+    "sentBody": "Merci de nous avoir contactés — nous revenons vers vous très vite."
+  },
+  "scheduler": {
+    "loadError": "Impossible de charger les disponibilités. Veuillez réessayer.",
+    "loading": "Chargement des disponibilités…",
+    "empty": "Aucun créneau disponible pour le moment — revenez bientôt.",
+    "pickDay": "Choisissez un jour",
+    "pickTime": "Choisissez un horaire",
+    "timezoneNote": "Horaires affichés dans votre fuseau horaire ({timezone}).",
+    "name": "Nom complet",
+    "email": "Adresse e-mail",
+    "topic": "De quoi souhaitez-vous parler ?",
+    "book": "Réserver à {time}",
+    "booking": "Réservation…",
+    "bookedTitle": "Rendez-vous confirmé",
+    "bookedBody": "Consultez vos e-mails pour l'invitation calendrier.",
+    "error": "Une erreur s'est produite — veuillez réessayer.",
+    "slotTaken": "Ce créneau n'est plus disponible — veuillez en choisir un autre."
+  },
+  "footer": {
+    "navigate": "Navigation",
+    "elsewhere": "Ailleurs",
+    "rights": "© {year} {agency}. Tous droits réservés.",
+    "whatsapp": "WhatsApp"
+  },
+  "preferences": {
+    "title": "Bienvenue",
+    "description": "Indiquez où vous vous trouvez et la langue de votre choix. Vous pourrez la modifier à tout moment via l'icône globe en haut de la page.",
+    "country": "Pays ou région",
+    "detected": "Détecté automatiquement",
+    "language": "Langue",
+    "site": "Vous consulterez notre site {site}.",
+    "continue": "Continuer",
+    "close": "Fermer",
+    "switcherLabel": "Changer de langue ou de région",
+    "siteEu": "Europe & International",
+    "siteBd": "Bangladesh"
+  },
+  "notFound": {
+    "title": "Cette page n'existe pas",
+    "description": "La page que vous cherchez a peut-être été déplacée ou supprimée.",
+    "back": "Retour à l'accueil"
+  },
+  "error": {
+    "title": "Une erreur s'est produite",
+    "description": "Une erreur inattendue s'est produite lors du chargement de la page. Réessayez dans un instant.",
+    "retry": "Réessayer",
+    "back": "Retour à l'accueil"
+  }
+}

@@ -3,7 +3,36 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { assertAdmin } from "@/lib/admin-guard";
+import { assertAdmin, assertRegionAccess } from "@/lib/admin-guard";
+import { getAdminRegion } from "@/lib/admin/region-server";
+
+async function assertOwnRule(id: string) {
+  await assertAdmin();
+  const { region } = await prisma.availabilityRule.findUniqueOrThrow({
+    where: { id },
+    select: { region: true },
+  });
+  await assertRegionAccess(region);
+}
+
+async function assertOwnBlackout(id: string) {
+  await assertAdmin();
+  const { region } = await prisma.blackoutDate.findUniqueOrThrow({
+    where: { id },
+    select: { region: true },
+  });
+  await assertRegionAccess(region);
+}
+
+/**
+ * New rules/blackouts belong to the region selected in the admin header
+ * (always their own region for a region admin — see getAdminRegion).
+ */
+async function selectedRegion() {
+  const region = await getAdminRegion();
+  if (region === "ALL") throw new Error("Choose a site (Europe or Bangladesh) first");
+  return region;
+}
 
 const TIME_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -29,25 +58,26 @@ function readRuleForm(formData: FormData) {
 export async function createRule(formData: FormData) {
   await assertAdmin();
   const parsed = readRuleForm(formData);
-  await prisma.availabilityRule.create({ data: parsed });
+  const region = await selectedRegion();
+  await prisma.availabilityRule.create({ data: { ...parsed, region } });
   revalidatePath("/admin/availability");
 }
 
 export async function updateRule(id: string, formData: FormData) {
-  await assertAdmin();
+  await assertOwnRule(id);
   const parsed = readRuleForm(formData);
   await prisma.availabilityRule.update({ where: { id }, data: parsed });
   revalidatePath("/admin/availability");
 }
 
 export async function deleteRule(id: string) {
-  await assertAdmin();
+  await assertOwnRule(id);
   await prisma.availabilityRule.delete({ where: { id } });
   revalidatePath("/admin/availability");
 }
 
 export async function toggleRuleActive(id: string, active: boolean) {
-  await assertAdmin();
+  await assertOwnRule(id);
   await prisma.availabilityRule.update({ where: { id }, data: { active } });
   revalidatePath("/admin/availability");
 }
@@ -70,14 +100,15 @@ function readBlackoutForm(formData: FormData) {
 export async function createBlackout(formData: FormData) {
   await assertAdmin();
   const parsed = readBlackoutForm(formData);
+  const region = await selectedRegion();
   await prisma.blackoutDate.create({
-    data: { date: new Date(parsed.date), reason: parsed.reason },
+    data: { date: new Date(parsed.date), reason: parsed.reason, region },
   });
   revalidatePath("/admin/availability");
 }
 
 export async function updateBlackout(id: string, formData: FormData) {
-  await assertAdmin();
+  await assertOwnBlackout(id);
   const parsed = readBlackoutForm(formData);
   await prisma.blackoutDate.update({
     where: { id },
@@ -87,7 +118,7 @@ export async function updateBlackout(id: string, formData: FormData) {
 }
 
 export async function deleteBlackout(id: string) {
-  await assertAdmin();
+  await assertOwnBlackout(id);
   await prisma.blackoutDate.delete({ where: { id } });
   revalidatePath("/admin/availability");
 }

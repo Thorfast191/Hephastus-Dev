@@ -3,12 +3,12 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { assertAdmin } from "@/lib/admin-guard";
+import { assertSuperAdmin } from "@/lib/admin-guard";
+import { revalidatePublicSite } from "@/lib/site/revalidate";
+import { readLocalized } from "@/lib/admin/form";
 
 const teamMemberSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  role: z.string().min(1, "Role is required"),
-  bio: z.string().min(1, "Bio is required"),
   photo: z
     .string()
     .trim()
@@ -16,16 +16,18 @@ const teamMemberSchema = z.object({
 });
 
 function readForm(formData: FormData) {
-  return teamMemberSchema.parse({
-    name: formData.get("name"),
-    role: formData.get("role"),
-    bio: formData.get("bio"),
-    photo: formData.get("photo"),
-  });
+  return {
+    ...teamMemberSchema.parse({
+      name: formData.get("name"),
+      photo: formData.get("photo"),
+    }),
+    role: readLocalized(formData, "role"),
+    bio: readLocalized(formData, "bio"),
+  };
 }
 
 export async function createTeamMember(formData: FormData) {
-  await assertAdmin();
+  await assertSuperAdmin();
   const parsed = readForm(formData);
   const maxOrder = await prisma.teamMember.aggregate({ _max: { order: true } });
 
@@ -34,33 +36,33 @@ export async function createTeamMember(formData: FormData) {
   });
 
   revalidatePath("/admin/team");
-  revalidatePath("/");
+  revalidatePublicSite();
 }
 
 export async function updateTeamMember(id: string, formData: FormData) {
-  await assertAdmin();
+  await assertSuperAdmin();
   const parsed = readForm(formData);
   await prisma.teamMember.update({ where: { id }, data: parsed });
   revalidatePath("/admin/team");
-  revalidatePath("/");
+  revalidatePublicSite();
 }
 
 export async function deleteTeamMember(id: string) {
-  await assertAdmin();
+  await assertSuperAdmin();
   await prisma.teamMember.delete({ where: { id } });
   revalidatePath("/admin/team");
-  revalidatePath("/");
+  revalidatePublicSite();
 }
 
 export async function toggleTeamMemberActive(id: string, active: boolean) {
-  await assertAdmin();
+  await assertSuperAdmin();
   await prisma.teamMember.update({ where: { id }, data: { active } });
   revalidatePath("/admin/team");
-  revalidatePath("/");
+  revalidatePublicSite();
 }
 
 export async function moveTeamMemberUp(id: string) {
-  await assertAdmin();
+  await assertSuperAdmin();
   const member = await prisma.teamMember.findUniqueOrThrow({ where: { id } });
   const prev = await prisma.teamMember.findFirst({
     where: { order: { lt: member.order } },
@@ -73,11 +75,11 @@ export async function moveTeamMemberUp(id: string) {
     prisma.teamMember.update({ where: { id: prev.id }, data: { order: member.order } }),
   ]);
   revalidatePath("/admin/team");
-  revalidatePath("/");
+  revalidatePublicSite();
 }
 
 export async function moveTeamMemberDown(id: string) {
-  await assertAdmin();
+  await assertSuperAdmin();
   const member = await prisma.teamMember.findUniqueOrThrow({ where: { id } });
   const next = await prisma.teamMember.findFirst({
     where: { order: { gt: member.order } },
@@ -90,5 +92,5 @@ export async function moveTeamMemberDown(id: string) {
     prisma.teamMember.update({ where: { id: next.id }, data: { order: member.order } }),
   ]);
   revalidatePath("/admin/team");
-  revalidatePath("/");
+  revalidatePublicSite();
 }

@@ -12,8 +12,9 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { MultiImageUpload } from "@/components/admin/image-upload";
+import { LocalizedField } from "@/components/admin/localized-field";
+import { RegionCheckboxes } from "@/components/admin/region-fields";
 import { createPortfolioItem, updatePortfolioItem } from "./actions";
 import type { PortfolioItem } from "@prisma/client";
 
@@ -38,7 +39,7 @@ export function PortfolioFormDialog({
       <DialogTrigger className={buttonVariants({ variant, size })}>
         {children}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{item ? "Edit project" : "Add project"}</DialogTitle>
         </DialogHeader>
@@ -49,19 +50,15 @@ export function PortfolioFormDialog({
           }}
           className="space-y-4"
         >
-          <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
-            <Input id="title" name="title" defaultValue={item?.title} required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              name="description"
-              defaultValue={item?.description}
-              required
-            />
-          </div>
+          <LocalizedField name="title" label="Title" value={item?.title} required />
+          <LocalizedField
+            name="description"
+            label="Description"
+            value={item?.description}
+            multiline
+            required
+          />
+          <RegionCheckboxes value={item?.regions} />
           <div className="space-y-2">
             <Label htmlFor="tags">Tags (comma-separated)</Label>
             <Input id="tags" name="tags" defaultValue={item?.tags.join(", ")} />

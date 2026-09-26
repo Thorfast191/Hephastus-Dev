@@ -7,8 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/// SUPER_ADMIN manages everything, including other admins. REGION_ADMIN
+/// is confined to `AdminUser.region`: that site's leads, meetings, settings,
+/// availability and the content shown only on it. See src/lib/admin/access.ts.
 enum AdminRole {
-  ADMIN
+  SUPER_ADMIN
+  REGION_ADMIN
 }
 
 model AdminUser {
@@ -16,9 +20,18 @@ model AdminUser {
   email        String    @unique
   passwordHash String
   name         String
-  role         AdminRole @default(ADMIN)
+  role         AdminRole
+  /// Required for REGION_ADMIN (enforced by a CHECK constraint), null for SUPER_ADMIN.
+  region       Region?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+}
+
+/// Which business a record belongs to. Public sites live on
+/// eu.<domain> and bd.<domain>; see src/lib/site/config.ts.
+enum Region {
+  EU
+  BD
 }
 
 enum LeadStatus {
@@ -33,10 +46,14 @@ enum MeetingStatus {
   CANCELLED
 }
 
+// Fields typed `Json` below hold localized text: { "en": "...", "fr": "..." }.
+// English is required; missing languages fall back to it. See src/lib/site/localized.ts.
+
 model Service {
   id          String   @id @default(cuid())
-  title       String
-  description String
+  title       Json
+  description Json
+  regions     Region[] @default([EU, BD])
   icon        String
   tags        String[] @default([])
   order       Int      @default(0)
@@ -49,8 +66,9 @@ model Service {
 
 model PortfolioItem {
   id           String   @id @default(cuid())
-  title        String
-  description  String
+  title        Json
+  description  Json
+  regions      Region[] @default([EU, BD])
   images       String[]
   tags         String[]
   externalLink String?
@@ -63,7 +81,8 @@ model PortfolioItem {
 
 model Testimonial {
   id         String   @id @default(cuid())
-  quote      String
+  quote      Json
+  regions    Region[] @default([EU, BD])
   authorName String
   company    String?
   photo      String?
@@ -75,8 +94,9 @@ model Testimonial {
 
 model Faq {
   id        String   @id @default(cuid())
-  question  String
-  answer    String
+  question  Json
+  answer    Json
+  regions   Region[] @default([EU, BD])
   order     Int      @default(0)
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
@@ -86,30 +106,34 @@ model Faq {
 model TeamMember {
   id        String   @id @default(cuid())
   name      String
-  role      String
+  role      Json
   photo     String?
-  bio       String
+  bio       Json
   order     Int      @default(0)
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
+/// One row per region: each site has its own copy, contact details,
+/// pricing bands and booking hours.
 model SiteSettings {
   id                  String   @id @default(cuid())
+  region              Region   @unique
   agencyName          String
-  tagline             String
-  heroEyebrow         String?
-  heroHeadline        String?
-  heroHeadlineAccent  String?
-  heroSubtitle        String?
-  heroPrimaryLabel    String?
+  tagline             Json
+  heroEyebrow         Json?
+  heroHeadline        Json?
+  heroHeadlineAccent  Json?
+  heroSubtitle        Json?
+  heroPrimaryLabel    Json?
   heroPrimaryHref     String?
-  heroSecondaryLabel  String?
+  heroSecondaryLabel  Json?
   heroSecondaryHref   String?
   budgetRanges        String[] @default([])
   contactEmail        String
   contactPhone        String
+  whatsapp            String?
   socialLinks         Json
   smtpSenderName      String
   businessTimezone    String
@@ -132,6 +156,9 @@ model Lead {
   budgetRange String?
   status    LeadStatus @default(NEW)
   notes     String     @default("")
+  region    Region     @default(EU)
+  locale    String     @default("en")
+  country   String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 }
@@ -145,12 +172,16 @@ model Meeting {
   durationMinutes Int
   status          MeetingStatus @default(CONFIRMED)
   icsUid          String
+  region          Region        @default(EU)
+  locale          String        @default("en")
+  country         String?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 }
 
 model AvailabilityRule {
   id        String  @id @default(cuid())
+  region    Region  @default(EU)
   dayOfWeek Int
   startTime String
   endTime   String
@@ -159,6 +190,9 @@ model AvailabilityRule {
 
 model BlackoutDate {
   id     String   @id @default(cuid())
-  date   DateTime @unique
+  region Region   @default(EU)
+  date   DateTime
   reason String?
+
+  @@unique([region, date])
 }

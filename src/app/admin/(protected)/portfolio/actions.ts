@@ -3,11 +3,12 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { assertAdmin } from "@/lib/admin-guard";
+import { assertAdmin, assertCanEditContent } from "@/lib/admin-guard";
+import { regionsToSave, reorderScope } from "@/lib/admin/content-access";
+import { revalidatePublicSite } from "@/lib/site/revalidate";
+import { readLocalized } from "@/lib/admin/form";
 
 const portfolioSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
   externalLink: z
     .string()
     .trim()
@@ -22,13 +23,25 @@ const portfolioSchema = z.object({
 });
 
 function readForm(formData: FormData) {
-  return portfolioSchema.parse({
-    title: formData.get("title"),
-    description: formData.get("description"),
-    externalLink: formData.get("externalLink"),
-    tags: formData.get("tags"),
-    images: formData.get("images"),
+  return {
+    ...portfolioSchema.parse({
+      externalLink: formData.get("externalLink"),
+      tags: formData.get("tags"),
+      images: formData.get("images"),
+    }),
+    title: readLocalized(formData, "title"),
+    description: readLocalized(formData, "description"),
+  };
+}
+
+/** Region admins may only change items shown on their own site alone. */
+async function assertEditable(id: string) {
+  await assertAdmin();
+  const { regions } = await prisma.portfolioItem.findUniqueOrThrow({
+    where: { id },
+    select: { regions: true },
   });
+  await assertCanEditContent(regions);
 }
 
 export async function createPortfolioItem(formData: FormData) {
@@ -37,47 +50,54 @@ export async function createPortfolioItem(formData: FormData) {
   const maxOrder = await prisma.portfolioItem.aggregate({ _max: { order: true } });
 
   await prisma.portfolioItem.create({
-    data: { ...parsed, order: (maxOrder._max.order ?? -1) + 1 },
+    data: {
+      ...parsed,
+      regions: await regionsToSave(formData),
+      order: (maxOrder._max.order ?? -1) + 1,
+    },
   });
 
   revalidatePath("/admin/portfolio");
-  revalidatePath("/");
+  revalidatePublicSite();
 }
 
 export async function updatePortfolioItem(id: string, formData: FormData) {
-  await assertAdmin();
+  await assertEditable(id);
   const parsed = readForm(formData);
-  await prisma.portfolioItem.update({ where: { id }, data: parsed });
+  await prisma.portfolioItem.update({
+    where: { id },
+    data: { ...parsed, regions: await regionsToSave(formData) },
+  });
   revalidatePath("/admin/portfolio");
-  revalidatePath("/");
+  revalidatePublicSite();
 }
 
 export async function deletePortfolioItem(id: string) {
-  await assertAdmin();
+  await assertEditable(id);
   await prisma.portfolioItem.delete({ where: { id } });
   revalidatePath("/admin/portfolio");
-  revalidatePath("/");
+  revalidatePublicSite();
 }
 
 export async function togglePortfolioActive(id: string, active: boolean) {
-  await assertAdmin();
+  await assertEditable(id);
   await prisma.portfolioItem.update({ where: { id }, data: { active } });
   revalidatePath("/admin/portfolio");
-  revalidatePath("/");
+  revalidatePublicSite();
 }
 
 export async function toggleFeatured(id: string, featured: boolean) {
-  await assertAdmin();
+  await assertEditable(id);
   await prisma.portfolioItem.update({ where: { id }, data: { featured } });
   revalidatePath("/admin/portfolio");
-  revalidatePath("/");
+  revalidatePublicSite();
 }
 
 export async function movePortfolioItemUp(id: string) {
-  await assertAdmin();
+  await assertEditable(id);
   const item = await prisma.portfolioItem.findUniqueOrThrow({ where: { id } });
   const prev = await prisma.portfolioItem.findFirst({
-    where: { order: { lt: item.order } },
+    where: { order: { lt: item.order }, ...(await reorderScope()) },
     orderBy: { order: "desc" },
   });
   if (!prev) return;
@@ -87,14 +107,14 @@ export async function movePortfolioItemUp(id: string) {
     prisma.portfolioItem.update({ where: { id: prev.id }, data: { order: item.order } }),
   ]);
   revalidatePath("/admin/portfolio");
-  revalidatePath("/");
+  revalidatePublicSite();
 }
 
 export async function movePortfolioItemDown(id: string) {
-  await assertAdmin();
+  await assertEditable(id);
   const item = await prisma.portfolioItem.findUniqueOrThrow({ where: { id } });
   const next = await prisma.portfolioItem.findFirst({
-    where: { order: { gt: item.order } },
+    where: { order: { gt: item.order }, ...(await reorderScope()) },
     orderBy: { order: "asc" },
   });
   if (!next) return;
@@ -104,5 +124,5 @@ export async function movePortfolioItemDown(id: string) {
     prisma.portfolioItem.update({ where: { id: next.id }, data: { order: item.order } }),
   ]);
   revalidatePath("/admin/portfolio");
-  revalidatePath("/");
+  revalidatePublicSite();
 }

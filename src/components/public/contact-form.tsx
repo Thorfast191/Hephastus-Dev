@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { Magnetic } from "@/components/motion/magnetic";
 
 export function ContactForm({
@@ -14,6 +15,8 @@ export function ContactForm({
 }) {
   const [status, setStatus] = useState<"idle" | "submitting" | "sent" | "error">("idle");
   const [budget, setBudget] = useState<string>("");
+  const t = useTranslations("form");
+  const locale = useLocale();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -35,6 +38,7 @@ export function ContactForm({
         projectType:
           services.find((s) => s.id === serviceId)?.title || undefined,
         budgetRange: budget || undefined,
+        locale,
       }),
     });
 
@@ -51,10 +55,8 @@ export function ContactForm({
     return (
       <div className="flex flex-col items-center gap-4 py-16 text-center">
         <CheckCircle2 className="h-12 w-12 text-site-accent" />
-        <p className="site-h3 text-2xl text-site-text">Message received</p>
-        <p className="max-w-sm text-sm text-site-muted">
-          Thanks for reaching out — we&apos;ll get back to you shortly.
-        </p>
+        <p className="site-h3 text-2xl text-site-text">{t("sentTitle")}</p>
+        <p className="max-w-sm text-sm text-site-muted">{t("sentBody")}</p>
       </div>
     );
   }
@@ -64,13 +66,19 @@ export function ContactForm({
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="space-y-2.5">
           <label htmlFor="name" className="block text-sm font-medium text-site-accent">
-            Full name
+            {t("name")}
           </label>
-          <input id="name" name="name" required className="site-field" placeholder="Jane Doe" />
+          <input
+            id="name"
+            name="name"
+            required
+            className="site-field"
+            placeholder={t("namePlaceholder")}
+          />
         </div>
         <div className="space-y-2.5">
           <label htmlFor="email" className="block text-sm font-medium text-site-accent">
-            Email address
+            {t("email")}
           </label>
           <input
             id="email"
@@ -78,7 +86,7 @@ export function ContactForm({
             type="email"
             required
             className="site-field"
-            placeholder="jane@example.com"
+            placeholder={t("emailPlaceholder")}
           />
         </div>
       </div>
@@ -86,16 +94,21 @@ export function ContactForm({
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="space-y-2.5">
           <label htmlFor="company" className="block text-sm font-medium text-site-accent">
-            Company <span className="text-site-muted">(optional)</span>
+            {t("company")} <span className="text-site-muted">{t("optional")}</span>
           </label>
-          <input id="company" name="company" className="site-field" placeholder="Acme Inc." />
+          <input
+            id="company"
+            name="company"
+            className="site-field"
+            placeholder={t("companyPlaceholder")}
+          />
         </div>
         <div className="space-y-2.5">
           <label htmlFor="serviceId" className="block text-sm font-medium text-site-accent">
-            Project type
+            {t("projectType")}
           </label>
           <select id="serviceId" name="serviceId" className="site-field" defaultValue="">
-            <option value="">Select a service</option>
+            <option value="">{t("selectService")}</option>
             {services.map((service) => (
               <option key={service.id} value={service.id}>
                 {service.title}
@@ -107,7 +120,7 @@ export function ContactForm({
 
       {budgetRanges.length > 0 && (
       <fieldset className="space-y-3">
-        <legend className="text-sm font-medium text-site-accent">Budget range</legend>
+        <legend className="text-sm font-medium text-site-accent">{t("budget")}</legend>
         <div className="flex flex-wrap gap-3">
           {budgetRanges.map((option) => {
             const active = budget === option;
@@ -133,7 +146,7 @@ export function ContactForm({
 
       <div className="space-y-2.5">
         <label htmlFor="message" className="block text-sm font-medium text-site-accent">
-          Project vision
+          {t("message")}
         </label>
         <textarea
           id="message"
@@ -141,12 +154,12 @@ export function ContactForm({
           required
           rows={5}
           className="site-field resize-y"
-          placeholder="Tell us about the problem you're solving and the impact you want to create..."
+          placeholder={t("messagePlaceholder")}
         />
       </div>
 
       {status === "error" && (
-        <p className="text-sm text-red-400">Something went wrong — please try again.</p>
+        <p className="text-sm text-red-400">{t("error")}</p>
       )}
 
       <Magnetic className="block w-full">
@@ -155,7 +168,7 @@ export function ContactForm({
           disabled={status === "submitting"}
           className="site-pill w-full bg-white px-10 py-4.5 text-[#050505] hover:shadow-[0_20px_40px_var(--site-glow)] disabled:opacity-60"
         >
-          {status === "submitting" ? "Sending…" : "Initiate project"}
+          {status === "submitting" ? t("submitting") : t("submit")}
         </button>
       </Magnetic>
     </form>

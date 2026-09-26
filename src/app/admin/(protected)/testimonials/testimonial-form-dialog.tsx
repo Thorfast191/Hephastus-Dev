@@ -12,8 +12,9 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { ImageUpload } from "@/components/admin/image-upload";
+import { LocalizedField } from "@/components/admin/localized-field";
+import { RegionCheckboxes } from "@/components/admin/region-fields";
 import { createTestimonial, updateTestimonial } from "./actions";
 import type { Testimonial } from "@prisma/client";
 
@@ -40,7 +41,7 @@ export function TestimonialFormDialog({
       <DialogTrigger className={buttonVariants({ variant, size })}>
         {children}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {testimonial ? "Edit testimonial" : "Add testimonial"}
@@ -53,15 +54,13 @@ export function TestimonialFormDialog({
           }}
           className="space-y-4"
         >
-          <div className="space-y-2">
-            <Label htmlFor="quote">Quote</Label>
-            <Textarea
-              id="quote"
-              name="quote"
-              defaultValue={testimonial?.quote}
-              required
-            />
-          </div>
+          <LocalizedField
+            name="quote"
+            label="Quote"
+            value={testimonial?.quote}
+            multiline
+            required
+          />
           <div className="space-y-2">
             <Label htmlFor="authorName">Author name</Label>
             <Input
@@ -75,6 +74,7 @@ export function TestimonialFormDialog({
             <Label htmlFor="company">Company</Label>
             <Input id="company" name="company" defaultValue={testimonial?.company ?? ""} />
           </div>
+          <RegionCheckboxes value={testimonial?.regions} />
           <div className="space-y-2">
             <Label>Photo</Label>
             <input type="hidden" name="photo" value={photo ?? ""} />

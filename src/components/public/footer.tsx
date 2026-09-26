@@ -1,20 +1,25 @@
+import { getTranslations } from "next-intl/server";
 import { Reveal } from "@/components/motion/reveal";
-import type { SiteSettings } from "@prisma/client";
+import type { SettingsView } from "@/lib/site/content";
 
 const NAV_LINKS = [
-  { href: "#services", label: "Services" },
-  { href: "#portfolio", label: "Portfolio" },
-  { href: "#process", label: "Process" },
-  { href: "#faq", label: "FAQ" },
-  { href: "#contact", label: "Contact" },
-];
+  { href: "#services", key: "services" },
+  { href: "#portfolio", key: "portfolio" },
+  { href: "#process", key: "process" },
+  { href: "#faq", key: "faq" },
+  { href: "#contact", key: "contact" },
+] as const;
 
-export function Footer({ settings }: { settings: SiteSettings }) {
-  const socialLinks = (settings.socialLinks ?? {}) as {
-    twitter?: string;
-    linkedin?: string;
-    github?: string;
-  };
+export async function Footer({
+  settings,
+  adminUrl,
+}: {
+  settings: SettingsView;
+  /** The admin lives on its own subdomain, so this has to be absolute. */
+  adminUrl: string;
+}) {
+  const [t, tNav] = await Promise.all([getTranslations("footer"), getTranslations("nav")]);
+  const socialLinks = settings.socialLinks;
 
   const socials = [
     { href: socialLinks.twitter, label: "Twitter" },
@@ -45,13 +50,23 @@ export function Footer({ settings }: { settings: SiteSettings }) {
                 >
                   {settings.contactPhone}
                 </a>
+                {settings.whatsapp && (
+                  <a
+                    href={`https://wa.me/${settings.whatsapp.replace(/\D/g, "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-site-muted transition-colors duration-500 ease-site hover:text-site-text"
+                  >
+                    {t("whatsapp")} · {settings.whatsapp}
+                  </a>
+                )}
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-8 md:justify-items-end">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-site-accent">
-                  Navigate
+                  {t("navigate")}
                 </p>
                 <ul className="mt-5 space-y-3 text-sm">
                   {NAV_LINKS.map((link) => (
@@ -60,7 +75,7 @@ export function Footer({ settings }: { settings: SiteSettings }) {
                         href={link.href}
                         className="text-site-muted transition-colors duration-500 ease-site hover:text-site-text"
                       >
-                        {link.label}
+                        {tNav(link.key)}
                       </a>
                     </li>
                   ))}
@@ -70,7 +85,7 @@ export function Footer({ settings }: { settings: SiteSettings }) {
               {socials.length > 0 && (
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-site-accent">
-                    Elsewhere
+                    {t("elsewhere")}
                   </p>
                   <ul className="mt-5 space-y-3 text-sm">
                     {socials.map((social) => (
@@ -93,11 +108,9 @@ export function Footer({ settings }: { settings: SiteSettings }) {
         </Reveal>
 
         <div className="flex flex-col gap-4 border-t border-site-border py-8 text-xs text-site-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            © {new Date().getFullYear()} {settings.agencyName}. All rights reserved.
-          </p>
+          <p>{t("rights", { year: new Date().getFullYear(), agency: settings.agencyName })}</p>
           <a
-            href="/admin"
+            href={`${adminUrl}/admin`}
             className="transition-colors duration-500 ease-site hover:text-site-text"
           >
             Admin

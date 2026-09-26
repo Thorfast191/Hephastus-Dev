@@ -43,20 +43,40 @@
    ```bash
    pnpm dev
    ```
-   Visit http://localhost:3000.
+   The app serves several hosts (see DEPLOY.md). Locally they are
+   subdomains of `localhost`, which browsers resolve with no setup:
 
-## Admin user
+   | URL | What |
+   |---|---|
+   | http://localhost:3000 | Redirects to your region/language and opens the chooser |
+   | http://eu.localhost:3000/en, `/fr` | Europe & international site |
+   | http://bd.localhost:3000/en | Bangladesh site |
+   | http://admin.localhost:3000/admin | Admin |
 
-Create or reset the admin login:
+   If you run on another port, set `ROOT_DOMAIN="localhost:<port>"`.
+
+## Admin users
+
+There are two kinds of admin:
+
+- **Super admin** — both sites, the team, and other admin accounts.
+- **Region admin** — one site (Europe or Bangladesh): its leads,
+  meetings, settings and booking hours, and content shown on that site
+  alone. Content shared by both sites is read-only for them.
+
+Create the first super admin from the command line:
 
 ```bash
 pnpm seed:admin --email you@example.com --password your-password --name "Your Name"
 ```
 
-Or set `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `ADMIN_NAME` environment
-variables instead of passing flags. Running this again for the same
-email updates that user's password and name rather than creating a
-second account — this is also how you reset a forgotten password.
+After that, add and manage admins from **Admin → Admins**. The script can
+also create region admins (`--role region --region BD`). Running it again
+for the same email resets that account's password (and name) without
+touching its role unless `--role` is given — this is also how you
+recover a forgotten super-admin password. Environment variables
+`ADMIN_EMAIL` / `ADMIN_PASSWORD` / `ADMIN_NAME` / `ADMIN_ROLE` /
+`ADMIN_REGION` work in place of the flags.
 
 ## Notes
 
@@ -66,5 +86,9 @@ second account — this is also how you reset a forgotten password.
   classic `schema.prisma` + `migrate` workflow with a cloud-platform CLI
   (managed Postgres, branches, contracts) that doesn't fit this project's
   self-hosted requirement.
-- No test suite in v1 — TypeScript strict mode and Zod validation at input
-  boundaries are the correctness net.
+- `pnpm test` runs the unit tests (host/region/language resolution, the
+  localized-text helpers, and a check that `messages/en.json` and
+  `messages/fr.json` define the same keys).
+- Interface text lives in `messages/<locale>.json`; admin-edited content
+  stores each text field as `{"en": "…", "fr": "…"}` and falls back to
+  English. Regions and languages are declared in `src/lib/site/config.ts`.

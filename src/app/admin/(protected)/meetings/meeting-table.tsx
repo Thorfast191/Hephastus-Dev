@@ -37,17 +37,22 @@ const FILTERS = ["ALL", "CONFIRMED", "CANCELLED"] as const;
 
 export function MeetingTable({
   meetings,
-  businessTimezone,
+  timezones,
 }: {
   meetings: Meeting[];
-  businessTimezone: string;
+  /** Business timezone per region — each meeting shows in its own site's time. */
+  timezones: Partial<Record<Meeting["region"], string>>;
 }) {
   const [filter, setFilter] = useState<string>("ALL");
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: businessTimezone,
-  });
+  const when = (meeting: Meeting) => {
+    const timeZone = timezones[meeting.region] ?? "UTC";
+    const formatted = new Intl.DateTimeFormat("en-GB", {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone,
+    }).format(meeting.scheduledAt);
+    return `${formatted} (${timeZone})`;
+  };
 
   const filtered = filter === "ALL" ? meetings : meetings.filter((m) => m.status === filter);
 
@@ -70,7 +75,8 @@ export function MeetingTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>When ({businessTimezone})</TableHead>
+            <TableHead>When</TableHead>
+            <TableHead>Site</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Topic</TableHead>
@@ -81,7 +87,13 @@ export function MeetingTable({
         <TableBody>
           {filtered.map((meeting) => (
             <TableRow key={meeting.id}>
-              <TableCell>{formatter.format(meeting.scheduledAt)}</TableCell>
+              <TableCell>{when(meeting)}</TableCell>
+              <TableCell>
+                <Badge variant="outline">
+                  {meeting.region} · {meeting.locale.toUpperCase()}
+                  {meeting.country && ` · ${meeting.country}`}
+                </Badge>
+              </TableCell>
               <TableCell>{meeting.name}</TableCell>
               <TableCell>{meeting.email}</TableCell>
               <TableCell>{meeting.topic}</TableCell>
@@ -100,7 +112,7 @@ export function MeetingTable({
                       <AlertDialogHeader>
                         <AlertDialogTitle>Cancel this meeting?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          This frees the {formatter.format(meeting.scheduledAt)} slot and emails{" "}
+                          This frees the {when(meeting)} slot and emails{" "}
                           {meeting.email} a cancellation notice.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
@@ -125,7 +137,7 @@ export function MeetingTable({
                       <AlertDialogTitle>Delete this meeting?</AlertDialogTitle>
                       <AlertDialogDescription>
                         This permanently removes the record of {meeting.name}&apos;s
-                        booking ({formatter.format(meeting.scheduledAt)}). No email is
+                        booking ({when(meeting)}). No email is
                         sent. This can&apos;t be undone.
                       </AlertDialogDescription>
                     </AlertDialogHeader>

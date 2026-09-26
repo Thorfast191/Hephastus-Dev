@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CalendarCheck } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { Magnetic } from "@/components/motion/magnetic";
 
 type Status = "loading" | "ready" | "booking" | "booked" | "error";
@@ -21,6 +22,8 @@ export function Scheduler() {
   const [error, setError] = useState<string | null>(null);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
+  const t = useTranslations("scheduler");
+  const locale = useLocale();
 
   async function loadSlots() {
     setStatus("loading");
@@ -31,26 +34,32 @@ export function Scheduler() {
       setSlots((data.slots as string[]).map((s) => new Date(s)));
       setStatus("ready");
     } catch {
-      setError("Couldn't load availability. Please try again.");
+      setError(t("loadError"));
       setStatus("error");
     }
   }
 
   useEffect(() => {
     loadSlots();
+    // Load once on mount; `t` is stable for the page's lifetime.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const dayFormatter = useMemo(
     () =>
-      new Intl.DateTimeFormat(undefined, {
+      new Intl.DateTimeFormat(locale, {
         weekday: "short",
         month: "short",
         day: "numeric",
       }),
-    []
+    [locale]
   );
   const timeFormatter = useMemo(
-    () => new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }),
+    () => new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }),
+    [locale]
+  );
+  const visitorTimezone = useMemo(
+    () => Intl.DateTimeFormat().resolvedOptions().timeZone,
     []
   );
 
@@ -85,6 +94,7 @@ export function Scheduler() {
         name: formData.get("name"),
         email: formData.get("email"),
         topic: formData.get("topic"),
+        locale,
       }),
     });
 
@@ -93,33 +103,29 @@ export function Scheduler() {
       return;
     }
 
-    const data = await response.json().catch(() => ({}));
-    setError(data.error ?? "Something went wrong — please try again.");
     setSelectedSlot(null);
     await loadSlots();
+    // After the reload: loadSlots() clears `error` when it starts.
+    setError(response.status === 409 ? t("slotTaken") : t("error"));
   }
 
   if (status === "booked") {
     return (
       <div className="flex flex-col items-center gap-4 py-16 text-center">
         <CalendarCheck className="h-12 w-12 text-site-accent" />
-        <p className="site-h3 text-2xl text-site-text">Meeting confirmed</p>
-        <p className="max-w-sm text-sm text-site-muted">
-          Check your email for the calendar invite.
-        </p>
+        <p className="site-h3 text-2xl text-site-text">{t("bookedTitle")}</p>
+        <p className="max-w-sm text-sm text-site-muted">{t("bookedBody")}</p>
       </div>
     );
   }
 
   if (status === "loading") {
-    return <p className="py-12 text-center text-sm text-site-muted">Loading availability…</p>;
+    return <p className="py-12 text-center text-sm text-site-muted">{t("loading")}</p>;
   }
 
   if (slots.length === 0) {
     return (
-      <p className="py-12 text-center text-sm text-site-muted">
-        No open slots right now — please check back soon.
-      </p>
+      <p className="py-12 text-center text-sm text-site-muted">{t("empty")}</p>
     );
   }
 
@@ -128,7 +134,10 @@ export function Scheduler() {
       {error && <p className="text-sm text-red-400">{error}</p>}
 
       <div className="space-y-3">
-        <p className="text-sm font-medium text-site-accent">Pick a day</p>
+        <p className="text-sm font-medium text-site-accent">{t("pickDay")}</p>
+        <p className="text-xs text-site-muted">
+          {t("timezoneNote", { timezone: visitorTimezone })}
+        </p>
         <div className="flex flex-wrap gap-3">
           {dayGroups.map((day) => (
             <button
@@ -148,7 +157,7 @@ export function Scheduler() {
 
       {activeDay && (
         <div className="space-y-3">
-          <p className="text-sm font-medium text-site-accent">Pick a time</p>
+          <p className="text-sm font-medium text-site-accent">{t("pickTime")}</p>
           <div className="flex flex-wrap gap-3">
             {activeDay.slots.map((slot) => (
               <button
@@ -172,7 +181,7 @@ export function Scheduler() {
                 htmlFor="meeting-name"
                 className="block text-sm font-medium text-site-accent"
               >
-                Full name
+                {t("name")}
               </label>
               <input id="meeting-name" name="name" required className="site-field" />
             </div>
@@ -181,7 +190,7 @@ export function Scheduler() {
                 htmlFor="meeting-email"
                 className="block text-sm font-medium text-site-accent"
               >
-                Email address
+                {t("email")}
               </label>
               <input
                 id="meeting-email"
@@ -197,7 +206,7 @@ export function Scheduler() {
               htmlFor="meeting-topic"
               className="block text-sm font-medium text-site-accent"
             >
-              What would you like to discuss?
+              {t("topic")}
             </label>
             <textarea
               id="meeting-topic"
@@ -215,8 +224,8 @@ export function Scheduler() {
               className="site-pill w-full bg-white px-10 py-4.5 text-[#050505] hover:shadow-[0_20px_40px_var(--site-glow)] disabled:opacity-60"
             >
               {status === "booking"
-                ? "Booking…"
-                : `Book ${timeFormatter.format(selectedSlot)}`}
+                ? t("booking")
+                : t("book", { time: timeFormatter.format(selectedSlot) })}
             </button>
           </Magnetic>
         </form>

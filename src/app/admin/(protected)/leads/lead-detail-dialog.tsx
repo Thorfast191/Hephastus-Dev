@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { localize } from "@/lib/site/localized";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -46,6 +47,11 @@ export function LeadDetailDialog({
             <span className="text-muted-foreground">Email: </span>
             {lead.email}
           </p>
+          <p>
+            <span className="text-muted-foreground">Site: </span>
+            {lead.region === "BD" ? "Bangladesh" : "Europe"} · {lead.locale.toUpperCase()}
+            {lead.country && ` · ${lead.country}`}
+          </p>
           {lead.company && (
             <p>
               <span className="text-muted-foreground">Company: </span>
@@ -55,7 +61,7 @@ export function LeadDetailDialog({
           {lead.service && (
             <p>
               <span className="text-muted-foreground">Service: </span>
-              {lead.service.title}
+              {localize(lead.service.title, "en")}
             </p>
           )}
           {lead.projectType && (

@@ -30,6 +30,8 @@ import {
   moveTeamMemberUp,
   toggleTeamMemberActive,
 } from "./actions";
+import { Badge } from "@/components/ui/badge";
+import { hasTranslation, localize } from "@/lib/site/localized";
 import type { TeamMember } from "@prisma/client";
 
 export function TeamMemberTable({ members }: { members: TeamMember[] }) {
@@ -74,7 +76,14 @@ export function TeamMemberTable({ members }: { members: TeamMember[] }) {
               )}
             </TableCell>
             <TableCell>{member.name}</TableCell>
-            <TableCell>{member.role}</TableCell>
+            <TableCell>
+              <div className="flex items-center gap-2">
+                {localize(member.role, "en")}
+                {!(hasTranslation(member.role, "fr") && hasTranslation(member.bio, "fr")) && (
+                  <Badge variant="destructive">FR missing</Badge>
+                )}
+              </div>
+            </TableCell>
             <TableCell>
               <Switch
                 checked={member.active}

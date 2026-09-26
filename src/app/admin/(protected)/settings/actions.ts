@@ -2,30 +2,42 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { Prisma, type Region } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { assertAdmin } from "@/lib/admin-guard";
+import { assertRegionAccess } from "@/lib/admin-guard";
+import { revalidatePublicSite } from "@/lib/site/revalidate";
+import { readLocalized, readOptionalLocalized } from "@/lib/admin/form";
+
+const optionalString = z
+  .string()
+  .trim()
+  .transform((v) => (v === "" ? null : v));
 
 const settingsSchema = z.object({
   agencyName: z.string().min(1),
-  tagline: z.string().min(1),
-  heroEyebrow: z.string().trim().transform((v) => (v === "" ? null : v)),
-  heroHeadline: z.string().trim().transform((v) => (v === "" ? null : v)),
-  heroHeadlineAccent: z.string().trim().transform((v) => (v === "" ? null : v)),
-  heroPrimaryLabel: z.string().trim().transform((v) => (v === "" ? null : v)),
-  heroPrimaryHref: z.string().trim().transform((v) => (v === "" ? null : v)),
-  heroSecondaryLabel: z.string().trim().transform((v) => (v === "" ? null : v)),
-  heroSecondaryHref: z.string().trim().transform((v) => (v === "" ? null : v)),
+  heroPrimaryHref: optionalString,
+  heroSecondaryHref: optionalString,
   budgetRanges: z.string().transform((v) =>
     v
       .split(",")
       .map((b) => b.trim())
       .filter(Boolean)
   ),
-  heroSubtitle: z.string().trim().transform((v) => (v === "" ? null : v)),
   contactEmail: z.string().email(),
   contactPhone: z.string().min(1),
+  whatsapp: optionalString,
   smtpSenderName: z.string().min(1),
-  businessTimezone: z.string().min(1),
+  businessTimezone: z.string().refine(
+    (tz) => {
+      try {
+        new Intl.DateTimeFormat("en", { timeZone: tz });
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    { message: "Unknown timezone — use an IANA name such as Europe/Paris" }
+  ),
   slotDurationMinutes: z.coerce.number().int().positive(),
   minNoticeHours: z.coerce.number().int().min(0),
   bookingWindowDays: z.coerce.number().int().positive(),
@@ -34,22 +46,18 @@ const settingsSchema = z.object({
   github: z.string().trim(),
 });
 
-export async function updateSettings(formData: FormData) {
-  await assertAdmin();
+export async function updateSettings(region: Region, formData: FormData) {
+  if (region !== "EU" && region !== "BD") throw new Error("Unknown region");
+  await assertRegionAccess(region);
+
   const parsed = settingsSchema.parse({
     agencyName: formData.get("agencyName"),
-    tagline: formData.get("tagline"),
-    heroEyebrow: formData.get("heroEyebrow"),
-    heroHeadline: formData.get("heroHeadline"),
-    heroHeadlineAccent: formData.get("heroHeadlineAccent"),
-    heroPrimaryLabel: formData.get("heroPrimaryLabel"),
     heroPrimaryHref: formData.get("heroPrimaryHref"),
-    heroSecondaryLabel: formData.get("heroSecondaryLabel"),
     heroSecondaryHref: formData.get("heroSecondaryHref"),
     budgetRanges: formData.get("budgetRanges") ?? "",
-    heroSubtitle: formData.get("heroSubtitle"),
     contactEmail: formData.get("contactEmail"),
     contactPhone: formData.get("contactPhone"),
+    whatsapp: formData.get("whatsapp") ?? "",
     smtpSenderName: formData.get("smtpSenderName"),
     businessTimezone: formData.get("businessTimezone"),
     slotDurationMinutes: formData.get("slotDurationMinutes"),
@@ -65,20 +73,25 @@ export async function updateSettings(formData: FormData) {
   if (parsed.linkedin) socialLinks.linkedin = parsed.linkedin;
   if (parsed.github) socialLinks.github = parsed.github;
 
+  // Prisma needs DbNull (not plain null) to clear a nullable Json column.
+  const optionalJson = (name: string) =>
+    readOptionalLocalized(formData, name) ?? Prisma.DbNull;
+
   const data = {
     agencyName: parsed.agencyName,
-    tagline: parsed.tagline,
-    heroEyebrow: parsed.heroEyebrow,
-    heroHeadline: parsed.heroHeadline,
-    heroHeadlineAccent: parsed.heroHeadlineAccent,
-    heroPrimaryLabel: parsed.heroPrimaryLabel,
+    tagline: readLocalized(formData, "tagline"),
+    heroEyebrow: optionalJson("heroEyebrow"),
+    heroHeadline: optionalJson("heroHeadline"),
+    heroHeadlineAccent: optionalJson("heroHeadlineAccent"),
+    heroSubtitle: optionalJson("heroSubtitle"),
+    heroPrimaryLabel: optionalJson("heroPrimaryLabel"),
     heroPrimaryHref: parsed.heroPrimaryHref,
-    heroSecondaryLabel: parsed.heroSecondaryLabel,
+    heroSecondaryLabel: optionalJson("heroSecondaryLabel"),
     heroSecondaryHref: parsed.heroSecondaryHref,
     budgetRanges: parsed.budgetRanges,
-    heroSubtitle: parsed.heroSubtitle,
     contactEmail: parsed.contactEmail,
     contactPhone: parsed.contactPhone,
+    whatsapp: parsed.whatsapp,
     smtpSenderName: parsed.smtpSenderName,
     businessTimezone: parsed.businessTimezone,
     slotDurationMinutes: parsed.slotDurationMinutes,
@@ -88,11 +101,11 @@ export async function updateSettings(formData: FormData) {
   };
 
   await prisma.siteSettings.upsert({
-    where: { id: "singleton" },
+    where: { region },
     update: data,
-    create: { id: "singleton", ...data },
+    create: { region, ...data },
   });
 
   revalidatePath("/admin/settings");
-  revalidatePath("/");
+  revalidatePublicSite();
 }

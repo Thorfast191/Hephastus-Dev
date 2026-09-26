@@ -6,12 +6,17 @@ import { prisma } from "@/lib/prisma";
 import { sendMail } from "@/lib/email";
 import { isSlotAvailable } from "@/lib/availability";
 import { buildMeetingIcs } from "@/lib/ics";
+import { meetingConfirmation, staffWhen } from "@/lib/email-templates";
+import { REGION_ENUM } from "@/lib/site/config";
+import { getRegionSettings } from "@/lib/site/content";
+import { countryFromRequest, localeFor, regionFromRequest } from "@/lib/site/request";
 
 const bookSchema = z.object({
   scheduledAt: z.string().datetime(),
   name: z.string().min(1),
   email: z.string().email(),
   topic: z.string().min(1),
+  locale: z.string().optional(),
 });
 
 export async function POST(request: Request) {
@@ -25,14 +30,16 @@ export async function POST(request: Request) {
   const { name, email, topic } = parsed.data;
   const scheduledAt = new Date(parsed.data.scheduledAt);
 
-  const settings = await prisma.siteSettings.findFirst();
+  const region = regionFromRequest(request);
+  const locale = localeFor(region, parsed.data.locale);
+  const settings = await getRegionSettings(region);
   if (!settings) {
     return NextResponse.json({ error: "Scheduling is not configured" }, { status: 503 });
   }
 
   const [rules, blackouts] = await Promise.all([
-    prisma.availabilityRule.findMany({ where: { active: true } }),
-    prisma.blackoutDate.findMany(),
+    prisma.availabilityRule.findMany({ where: { active: true, region: REGION_ENUM[region] } }),
+    prisma.blackoutDate.findMany({ where: { region: REGION_ENUM[region] } }),
   ]);
 
   const legal = isSlotAvailable({
@@ -67,6 +74,9 @@ export async function POST(request: Request) {
         scheduledAt,
         durationMinutes: settings.slotDurationMinutes,
         icsUid,
+        region: REGION_ENUM[region],
+        locale,
+        country: countryFromRequest(request),
       },
     });
   } catch (error) {
@@ -98,16 +108,22 @@ export async function POST(request: Request) {
 
     await sendMail({
       to: email,
-      subject: `Meeting confirmed: ${topic}`,
-      text: `Hi ${name},\n\nYour meeting is confirmed for ${scheduledAt.toISOString()}.\n\nTopic: ${topic}\n\n${fromName}`,
+      ...meetingConfirmation({
+        locale,
+        name,
+        topic,
+        scheduledAt,
+        timeZone: settings.businessTimezone,
+        signature: fromName,
+      }),
       fromName,
       attachments,
     });
 
     await sendMail({
       to: settings.contactEmail,
-      subject: `New meeting booked: ${topic}`,
-      text: `${name} (${email}) booked a meeting.\n\nTopic: ${topic}\nWhen: ${scheduledAt.toISOString()}`,
+      subject: `[${region.toUpperCase()}] New meeting booked: ${topic}`,
+      text: `${name} (${email}) booked a meeting on the ${region.toUpperCase()} site (${locale}).\n\nTopic: ${topic}\nWhen: ${staffWhen(scheduledAt, settings.businessTimezone)}`,
       fromName,
       attachments,
     });
